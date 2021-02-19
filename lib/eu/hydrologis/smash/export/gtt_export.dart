@@ -18,16 +18,20 @@ import 'package:smash/eu/hydrologis/smash/project/project_database.dart';
 import 'package:smash/eu/hydrologis/smash/util/network.dart';
 import 'package:smashlibs/smashlibs.dart';
 
-class GssExportWidget extends StatefulWidget {
+class GttExportWidget extends StatefulWidget {
   final GeopaparazziProjectDb projectDb;
 
-  GssExportWidget(this.projectDb, {Key key}) : super(key: key);
+  GttExportWidget(this.projectDb, {Key key}) : super(key: key);
 
   @override
-  _GssExportWidgetState createState() => new _GssExportWidgetState();
+  _GttExportWidgetState createState() => new _GttExportWidgetState();
 }
 
-class _GssExportWidgetState extends State<GssExportWidget> {
+class _GttExportWidgetState extends State<GttExportWidget> {
+  final String KEY_GTT_SERVER_URL = "key_gtt_server_url";
+  final String KEY_GTT_SERVER_USER = "key_gtt_server_user";
+  final String KEY_GTT_SERVER_PWD = "key_gtt_server_pwd";
+
   /*
    * 0 = loading data stats
    * 1 = show data stats
@@ -58,8 +62,7 @@ class _GssExportWidgetState extends State<GssExportWidget> {
   }
 
   Future<void> init() async {
-    _serverUrl =
-        GpPreferences().getStringSync(SmashPreferencesKeys.KEY_GSS_SERVER_URL);
+    _serverUrl = GpPreferences().getStringSync(KEY_GTT_SERVER_URL);
     if (_serverUrl == null) {
       setState(() {
         _status = 11;
@@ -67,8 +70,7 @@ class _GssExportWidgetState extends State<GssExportWidget> {
       return;
     }
 
-    String pwd =
-        GpPreferences().getStringSync(SmashPreferencesKeys.KEY_GSS_SERVER_PWD);
+    String pwd = GpPreferences().getStringSync(KEY_GTT_SERVER_PWD);
     if (pwd == null || pwd.trim().isEmpty) {
       setState(() {
         _status = 10;
@@ -106,7 +108,7 @@ class _GssExportWidgetState extends State<GssExportWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("GSS Export"),
+        title: new Text("GTT Export"),
         actions: _status < 2
             ? <Widget>[
                 IconButton(

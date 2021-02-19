@@ -6,8 +6,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:smashlibs/smashlibs.dart';
 import 'package:smash/eu/hydrologis/smash/import/gss_import.dart';
+import 'package:smashlibs/smashlibs.dart';
+
+import 'gtt_import.dart';
 
 class ImportWidget extends StatefulWidget {
   ImportWidget({Key key}) : super(key: key);
@@ -23,8 +25,9 @@ class _ImportWidgetState extends State<ImportWidget> {
       appBar: new AppBar(
         title: new Text("Import"),
       ),
-      body: ListView(children: <Widget>[
-        ListTile(
+      body: ListView(
+        children: <Widget>[
+          ListTile(
             leading: Icon(
               MdiIcons.cloudLock,
               color: SmashColors.mainDecorations,
@@ -33,11 +36,27 @@ class _ImportWidgetState extends State<ImportWidget> {
             subtitle: Text("Import from Geopaparazzi Survey Server"),
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => new GssImportWidget()));
-            }),
-      ]),
+                context,
+                MaterialPageRoute(builder: (context) => new GssImportWidget()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              MdiIcons.cloudLock,
+              color: Colors.red, //SmashColors.mainDecorations,
+            ),
+            title: Text("GTT"),
+            subtitle: Text("Import from GeoTaskTracker Server"),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => new GttImportWidget()),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
