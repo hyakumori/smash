@@ -5,17 +5,17 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dart_hydrologis_utils/dart_hydrologis_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:smash/eu/hydrologis/smash/gss/gss_utilities.dart';
+import 'package:smash/eu/hydrologis/smash/gtt/gtt_uilities.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/images.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/logs.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/notes.dart';
 import 'package:smash/eu/hydrologis/smash/project/project_database.dart';
-import 'package:smash/eu/hydrologis/smash/util/network.dart';
 import 'package:smashlibs/smashlibs.dart';
 
 class GttExportWidget extends StatefulWidget {
@@ -28,15 +28,14 @@ class GttExportWidget extends StatefulWidget {
 }
 
 class _GttExportWidgetState extends State<GttExportWidget> {
-  final String KEY_GTT_SERVER_URL = "key_gtt_server_url";
-  final String KEY_GTT_SERVER_USER = "key_gtt_server_user";
-  final String KEY_GTT_SERVER_PWD = "key_gtt_server_pwd";
-
   /*
    * 0 = loading data stats
    * 1 = show data stats
    * 2 = uploading data
    *
+   *  7 = no Projects Listed for User
+   *  8 = no server apiKey available
+   *  9 = no server user available
    * 10 = no server pwd available
    * 11 = no server url available
    * 12 = upload error
@@ -53,6 +52,8 @@ class _GttExportWidgetState extends State<GttExportWidget> {
   int _imagesCount;
 
   List<Widget> _uploadTiles;
+  List<DropdownMenuItem> _projects = List<DropdownMenuItem>();
+  String _selectedProj;
 
   @override
   void initState() {
@@ -62,7 +63,8 @@ class _GttExportWidgetState extends State<GttExportWidget> {
   }
 
   Future<void> init() async {
-    _serverUrl = GpPreferences().getStringSync(KEY_GTT_SERVER_URL);
+    _serverUrl = GpPreferences().getStringSync(GttUtilities.KEY_GTT_SERVER_URL);
+
     if (_serverUrl == null) {
       setState(() {
         _status = 11;
@@ -70,7 +72,8 @@ class _GttExportWidgetState extends State<GttExportWidget> {
       return;
     }
 
-    String pwd = GpPreferences().getStringSync(KEY_GTT_SERVER_PWD);
+    String pwd = GpPreferences().getStringSync(GttUtilities.KEY_GTT_SERVER_PWD);
+
     if (pwd == null || pwd.trim().isEmpty) {
       setState(() {
         _status = 10;
@@ -78,17 +81,69 @@ class _GttExportWidgetState extends State<GttExportWidget> {
       return;
     }
 
-    _uploadDataUrl = _serverUrl + GssUtilities.SYNCH_PATH;
-    _authHeader = await GssUtilities.getAuthHeader(pwd);
+    String usr =
+        GpPreferences().getStringSync(GttUtilities.KEY_GTT_SERVER_USER);
 
-    /*
+    if (usr == null || usr.trim().isEmpty) {
+      setState(() {
+        _status = 9;
+      });
+      return;
+    }
+
+    /**
+     * Getting GTT API Key
+     */
+    String key = GpPreferences().getStringSync(GttUtilities.KEY_GTT_SERVER_KEY);
+
+    if (key == null || key.trim().isEmpty) {
+      String apiKey = await GttUtilities.getApiKey();
+
+      if (apiKey == null || apiKey.trim().isEmpty) {
+        setState(() {
+          _status = 8;
+        });
+        return;
+      }
+
+      await GpPreferences().setString(GttUtilities.KEY_GTT_SERVER_KEY, apiKey);
+      debugPrint("API Key: $apiKey");
+    }
+
+    /**
+     * Getting User Projects List
+     */
+    List<Map<String, dynamic>> projects = await GttUtilities.getUserProjects();
+
+    if (projects.isEmpty) {
+      setState(() {
+        _status = 7;
+      });
+      return;
+    }
+
+    for (Map<String, dynamic> p in projects) {
+      String s = p["name"];
+      String v = "${p["id"]}";
+      debugPrint("$v,$s");
+
+      String sub = s.length < 25 ? s : "${s.substring(0, 20)}...";
+      _projects.add(DropdownMenuItem(child: Text(sub), value: v));
+    }
+
+    _selectedProj = "${projects[0]["id"]}";
+
+    //_uploadDataUrl = _serverUrl + GssUtilities.SYNCH_PATH;
+    //_authHeader = await GssUtilities.getAuthHeader(pwd);
+
+    /**
      * now gather data stats from db
      */
     gatherStats();
   }
 
   gatherStats() {
-    /*
+    /**
      * now gather data stats from db
      */
     var db = widget.projectDb;
@@ -106,6 +161,26 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Widget projWidget = Container(
+      padding: EdgeInsets.all(10),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SmashUI.normalText(
+              "Choose GTT Project:",
+              bold: true,
+              color: Colors.blue,
+            ),
+            DropdownButton(
+                items: _projects,
+                value: _selectedProj,
+                onChanged: (s) => setState(() => _selectedProj = s)),
+          ],
+        ),
+      ),
+    );
+
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("GTT Export"),
@@ -164,7 +239,8 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                           child: Padding(
                             padding: SmashUI.defaultPadding(),
                             child: SmashUI.titleText(
-                                "No GSS server url has been set. Check your settings."),
+                                "No GSS server url has been set. "
+                                "Check your settings."),
                           ),
                         )
                       : _status == 10
@@ -172,82 +248,118 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                               child: Padding(
                                 padding: SmashUI.defaultPadding(),
                                 child: SmashUI.titleText(
-                                    "No GSS server password has been set. Check your settings."),
+                                    "No GSS server password has been set. "
+                                    "Check your settings."),
                               ),
                             )
-                          : _status == 1
-                              ? // View stats
-                              Center(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: SmashUI.defaultPadding(),
-                                        child: SmashUI.titleText("Sync Stats",
-                                            bold: true),
-                                      ),
-                                      Padding(
-                                        padding: SmashUI.defaultPadding(),
-                                        child: SmashUI.smallText(
-                                            "The following data will be uploaded upon sync.",
-                                            color: Colors.grey),
-                                      ),
-                                      Expanded(
-                                        child: ListView(
-                                          children: <Widget>[
-                                            ListTile(
-                                              leading: Icon(
-                                                SmashIcons.logIcon,
-                                                color:
-                                                    SmashColors.mainDecorations,
-                                              ),
-                                              title: SmashUI.normalText(
-                                                  "Gps Logs: $_gpsLogCount"),
-                                            ),
-                                            ListTile(
-                                              leading: Icon(
-                                                SmashIcons.simpleNotesIcon,
-                                                color:
-                                                    SmashColors.mainDecorations,
-                                              ),
-                                              title: SmashUI.normalText(
-                                                  "Simple Notes: $_simpleNotesCount"),
-                                            ),
-                                            ListTile(
-                                              leading: Icon(
-                                                SmashIcons.formNotesIcon,
-                                                color:
-                                                    SmashColors.mainDecorations,
-                                              ),
-                                              title: SmashUI.normalText(
-                                                  "Form Notes: $_formNotesCount"),
-                                            ),
-                                            ListTile(
-                                              leading: Icon(
-                                                SmashIcons.imagesNotesIcon,
-                                                color:
-                                                    SmashColors.mainDecorations,
-                                              ),
-                                              title: SmashUI.normalText(
-                                                  "Images: $_imagesCount"),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                          : _status == 9
+                              ? Center(
+                                  child: Padding(
+                                    padding: SmashUI.defaultPadding(),
+                                    child: SmashUI.titleText(
+                                        "No GSS server user has been set. "
+                                        "Check your settings."),
                                   ),
                                 )
-                              : _status == 2
+                              : _status == 7
                                   ? Center(
-                                      child: ListView(
-                                        children: _uploadTiles,
+                                      child: Padding(
+                                        padding: SmashUI.defaultPadding(),
+                                        child: SmashUI.titleText(
+                                            "Unable to retrieve GTT Projects "
+                                            "List. Check your settings."),
                                       ),
                                     )
-                                  : Container(
-                                      child: Text("Should not happen"),
-                                    ),
+                                  : _status == 8
+                                      ? Center(
+                                          child: Padding(
+                                            padding: SmashUI.defaultPadding(),
+                                            child: SmashUI.titleText(
+                                                "Unable to retrieve GTT Api Key. "
+                                                "Check your settings."),
+                                          ),
+                                        )
+                                      : _status == 1
+                                          ? // View stats
+                                          Center(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Padding(
+                                                    padding: SmashUI
+                                                        .defaultPadding(),
+                                                    child: SmashUI.titleText(
+                                                        "Sync Stats",
+                                                        bold: true),
+                                                  ),
+                                                  Padding(
+                                                    padding: SmashUI
+                                                        .defaultPadding(),
+                                                    child: SmashUI.smallText(
+                                                        "The following data will be uploaded upon sync.",
+                                                        color: Colors.grey),
+                                                  ),
+                                                  Expanded(
+                                                    child: ListView(
+                                                      children: <Widget>[
+                                                        projWidget,
+                                                        ListTile(
+                                                          leading: Icon(
+                                                            SmashIcons.logIcon,
+                                                            color: SmashColors
+                                                                .mainDecorations,
+                                                          ),
+                                                          title: SmashUI.normalText(
+                                                              "Gps Logs: $_gpsLogCount"),
+                                                        ),
+                                                        ListTile(
+                                                          leading: Icon(
+                                                            SmashIcons
+                                                                .simpleNotesIcon,
+                                                            color: SmashColors
+                                                                .mainDecorations,
+                                                          ),
+                                                          title: SmashUI.normalText(
+                                                              "Simple Notes: $_simpleNotesCount"),
+                                                        ),
+                                                        ListTile(
+                                                          leading: Icon(
+                                                            SmashIcons
+                                                                .formNotesIcon,
+                                                            color: SmashColors
+                                                                .mainDecorations,
+                                                          ),
+                                                          title: SmashUI.normalText(
+                                                              "Form Notes: $_formNotesCount"),
+                                                        ),
+                                                        ListTile(
+                                                          leading: Icon(
+                                                            SmashIcons
+                                                                .imagesNotesIcon,
+                                                            color: SmashColors
+                                                                .mainDecorations,
+                                                          ),
+                                                          title: SmashUI.normalText(
+                                                              "Images: $_imagesCount"),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : _status == 2
+                                              ? Center(
+                                                  child: ListView(
+                                                    children: _uploadTiles,
+                                                  ),
+                                                )
+                                              : Container(
+                                                  child:
+                                                      Text("Should not happen"),
+                                                ),
       floatingActionButton: _status < 2 && _status != -1
           ? FloatingActionButton.extended(
               icon: Icon(SmashIcons.upload),
@@ -263,6 +375,35 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     );
   }
 
+  Map<String, dynamic> createIssue(Note note) {
+    String geoJson = "{\"type\": \"Feature\",\"properties\": {},"
+        "\"geometry\": {\"type\": \"Point\",\"coordinates\": "
+        "[${note.lon}, ${note.lat}]}}";
+
+    if (note.hasForm()) {
+      final form = json.decode(note.form);
+      if ("text note".compareTo(form["sectionname"]) == 0) {
+        for (var f in form["forms"][0]["formitems"]) {
+          debugPrint("KEY:  ${f["key"]}");
+        }
+      }
+    }
+    Map<String, dynamic> params = {
+      "project_id": _selectedProj,
+      "priority_id": 2,
+      "tracker_id": 3,
+      "subject": note.text.isEmpty ? "SMASH issue" : note.text,
+      "description": note.hasForm() ? note.form : "SMASH issue",
+      "geojson": geoJson,
+    };
+
+    Map<String, dynamic> issue = {
+      "issue": params,
+    };
+
+    return issue;
+  }
+
   Future uploadProjectData() async {
     var db = widget.projectDb;
     Dio dio = NetworkHelper.getNewDioInstance();
@@ -270,8 +411,14 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     int order = 0;
 
     _uploadTiles = [];
+
     List<Note> simpleNotes = db.getNotes(doSimple: true, onlyDirty: true);
-    for (var note in simpleNotes) {
+    for (Note note in simpleNotes) {
+      Map<String, dynamic> ret =
+          await GttUtilities.postIssue(createIssue(note));
+      debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
+          "status_message: ${ret["status_message"]}");
+      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -282,9 +429,15 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
+       */
     }
     List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
-    for (var note in formNotes) {
+    for (Note note in formNotes) {
+      Map<String, dynamic> ret =
+          await GttUtilities.postIssue(createIssue(note));
+      debugPrint("FormNote status_code: ${ret["status_code"]}, "
+          "status_message: ${ret["status_message"]}");
+      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -295,9 +448,11 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
+       */
     }
     List<DbImage> imagesList = db.getImages(onlyDirty: true);
     for (var image in imagesList) {
+      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -308,10 +463,12 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
+       */
     }
 
     List<Log> logsList = db.getLogs(onlyDirty: true);
-    for (var log in logsList) {
+    for (Log log in logsList) {
+      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -322,6 +479,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
+       */
     }
 
     setState(() {

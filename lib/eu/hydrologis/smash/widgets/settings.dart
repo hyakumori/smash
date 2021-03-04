@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:smash/eu/hydrologis/smash/gps/filters.dart';
 import 'package:smash/eu/hydrologis/smash/gps/gps.dart';
 import 'package:smash/eu/hydrologis/smash/gps/testlog.dart';
+import 'package:smash/eu/hydrologis/smash/gtt/gtt_uilities.dart';
 import 'package:smash/eu/hydrologis/smash/maps/plugins/center_cross_plugin.dart';
 import 'package:smash/eu/hydrologis/smash/maps/plugins/pluginshandler.dart';
 import 'package:smash/eu/hydrologis/smash/models/gps_state.dart';
@@ -168,7 +169,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           color: Colors.red, //SmashColors.mainDecorations,
         ),
         title: SmashUI.normalText("GTT"),
-        subtitle: Text("GTT Server"),
+        subtitle: Text("GeoTaskTracker Server"),
         trailing: Icon(Icons.arrow_right),
         onTap: () {
           _selectedSetting = GttSettings();
@@ -2185,16 +2186,12 @@ class GttSettings extends StatefulWidget {
 }
 
 class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
-  static final title = "GTT";
+  static final title = "GeoTaskTracker";
   static final subtitle = "GeoTaskTracker";
   static final iconData = MdiIcons.cloudLock;
 
-  final String KEY_GTT_SERVER_URL = "key_gtt_server_url";
-  final String KEY_GTT_SERVER_USER = "key_gtt_server_user";
-  final String KEY_GTT_SERVER_PWD = "key_gtt_server_pwd";
-
   String _gttUrl;
-  String _gttUser; // Rigth now unused, since the deviceid is the user
+  String _gttUser;
   String _gttPwd;
   bool _allowSelfCert;
 
@@ -2204,10 +2201,13 @@ class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
   }
 
   Future<void> getData() async {
-    String gssUrl = await GpPreferences().getString(KEY_GTT_SERVER_URL, "");
-    String gssUser = await GpPreferences().getString(KEY_GTT_SERVER_USER, "");
-    String gssPwd =
-        await GpPreferences().getString(KEY_GTT_SERVER_PWD, "dummy");
+    String gssUrl =
+        await GpPreferences().getString(GttUtilities.KEY_GTT_SERVER_URL, "");
+    String gssUser =
+        await GpPreferences().getString(GttUtilities.KEY_GTT_SERVER_USER, "");
+    String gssPwd = await GpPreferences()
+        .getString(GttUtilities.KEY_GTT_SERVER_PWD, "dummy");
+
     bool allowSelfCert = await GpPreferences().getBoolean(
         SmashPreferencesKeys.KEY_GSS_SERVER_ALLOW_SELFCERTIFICATE, true);
 
@@ -2265,8 +2265,10 @@ class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
                                   if (res == null || res.trim().length == 0) {
                                     res = _gttUrl;
                                   }
-                                  await GpPreferences()
-                                      .setString(KEY_GTT_SERVER_URL, res);
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_URL, res);
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_KEY, "");
                                   setState(() {
                                     _gttUrl = res;
                                   });
@@ -2279,6 +2281,49 @@ class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
                                     return "Server url needs to start with http or https.";
                                   }
                                 },
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    child: Card(
+                      margin: SmashUI.defaultMargin(),
+                      color: SmashColors.mainBackground,
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: SmashUI.defaultPadding(),
+                            child: SmashUI.normalText("Server Username",
+                                bold: true),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(
+                                  top: p, bottom: p, right: p, left: 2 * p),
+                              child: EditableTextField(
+                                "server username",
+                                _gttUser,
+                                (res) async {
+                                  if (res == null || res.trim().length == 0) {
+                                    res = _gttUser;
+                                  }
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_USER, res);
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_KEY, "");
+                                  setState(() {
+                                    _gttUser = res;
+                                  });
+                                },
+                                validationFunction: (text) {
+                                  if (text.toString().trim().isNotEmpty) {
+                                    return null;
+                                  } else {
+                                    return "Please enter a valid server username.";
+                                  }
+                                },
+                                isPassword: false,
                               )),
                         ],
                       ),
@@ -2306,8 +2351,10 @@ class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
                                   if (res == null || res.trim().length == 0) {
                                     res = _gttPwd;
                                   }
-                                  await GpPreferences()
-                                      .setString(KEY_GTT_SERVER_PWD, res);
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_PWD, res);
+                                  await GpPreferences().setString(
+                                      GttUtilities.KEY_GTT_SERVER_KEY, "");
                                   setState(() {
                                     _gttPwd = res;
                                   });
