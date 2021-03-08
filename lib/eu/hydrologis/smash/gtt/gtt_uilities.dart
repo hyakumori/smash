@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:smash/eu/hydrologis/smash/project/objects/notes.dart';
 import 'package:smashlibs/smashlibs.dart';
 
 class GttUtilities {
@@ -113,5 +114,57 @@ class GttUtilities {
       debugPrint("User Projects Error: $exception");
     }
     return retVal;
+  }
+
+  static Map<String, dynamic> createIssue(Note note, String selectedProj) {
+    String geoJson = "{\"type\": \"Feature\",\"properties\": {},"
+        "\"geometry\": {\"type\": \"Point\",\"coordinates\": "
+        "[${note.lon}, ${note.lat}]}}";
+
+    String subject = note.text.isEmpty ? "SMASH issue" : note.text;
+    String description =
+        note.description.isEmpty ? "SMASH issue" : note.description;
+
+    if (note.hasForm()) {
+      final form = json.decode(note.form);
+      if ("text note".compareTo(form["sectionname"]) == 0) {
+        for (var f in form["forms"][0]["formitems"]) {
+          if ("title".compareTo(f["key"]) == 0) {
+            subject = f["value"];
+          } else if ("description".compareTo(f["key"]) == 0) {
+            description = f["value"];
+          }
+        }
+      } else {
+        description = note.form;
+      }
+    }
+
+    Map<String, dynamic> params = {
+      "project_id": selectedProj,
+      "priority_id": 2,
+      "tracker_id": 3,
+      "subject": subject,
+      "description": description,
+      "geojson": geoJson,
+    };
+
+    Map<String, dynamic> issue = {
+      "issue": params,
+    };
+
+    return issue;
+  }
+
+  static Widget getResultTile(String name, String description) {
+    return ListTile(
+      leading: Icon(
+        SmashIcons.upload,
+        color: SmashColors.mainDecorations,
+      ),
+      title: Text(name),
+      subtitle: Text(description),
+      onTap: () {},
+    );
   }
 }

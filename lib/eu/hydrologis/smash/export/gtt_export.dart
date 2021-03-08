@@ -5,10 +5,8 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dart_hydrologis_utils/dart_hydrologis_utils.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:smash/eu/hydrologis/smash/gtt/gtt_uilities.dart';
@@ -43,8 +41,6 @@ class _GttExportWidgetState extends State<GttExportWidget> {
   int _status = 0;
 
   String _serverUrl;
-  String _authHeader;
-  String _uploadDataUrl;
 
   int _gpsLogCount;
   int _simpleNotesCount;
@@ -352,9 +348,15 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                             )
                                           : _status == 2
                                               ? Center(
-                                                  child: ListView(
-                                                    children: _uploadTiles,
-                                                  ),
+                                                  child: _uploadTiles.length ==
+                                                          0
+                                                      ? SmashCircularProgress(
+                                                          label:
+                                                              "Uploading data")
+                                                      : ListView(
+                                                          children:
+                                                              _uploadTiles,
+                                                        ),
                                                 )
                                               : Container(
                                                   child:
@@ -367,7 +369,11 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                 if (!await NetworkUtilities.isConnected()) {
                   SmashDialogs.showOperationNeedsNetwork(context);
                 } else {
-                  await uploadProjectData();
+                  //await uploadProjectData();
+                  setState(() {
+                    _status = 2;
+                    uploadProjectData();
+                  });
                 }
               },
               label: Text("Upload"))
@@ -375,81 +381,60 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     );
   }
 
-  Map<String, dynamic> createIssue(Note note) {
-    String geoJson = "{\"type\": \"Feature\",\"properties\": {},"
-        "\"geometry\": {\"type\": \"Point\",\"coordinates\": "
-        "[${note.lon}, ${note.lat}]}}";
-
-    if (note.hasForm()) {
-      final form = json.decode(note.form);
-      if ("text note".compareTo(form["sectionname"]) == 0) {
-        for (var f in form["forms"][0]["formitems"]) {
-          debugPrint("KEY:  ${f["key"]}");
-        }
-      }
-    }
-    Map<String, dynamic> params = {
-      "project_id": _selectedProj,
-      "priority_id": 2,
-      "tracker_id": 3,
-      "subject": note.text.isEmpty ? "SMASH issue" : note.text,
-      "description": note.hasForm() ? note.form : "SMASH issue",
-      "geojson": geoJson,
-    };
-
-    Map<String, dynamic> issue = {
-      "issue": params,
-    };
-
-    return issue;
-  }
-
   Future uploadProjectData() async {
     var db = widget.projectDb;
-    Dio dio = NetworkHelper.getNewDioInstance();
-    ValueNotifier<int> uploadOrder = ValueNotifier<int>(0);
-    int order = 0;
+    int uploadCount = 0;
 
     _uploadTiles = [];
 
+    /**
+     * Simple Notes Upload
+     */
     List<Note> simpleNotes = db.getNotes(doSimple: true, onlyDirty: true);
+
     for (Note note in simpleNotes) {
-      Map<String, dynamic> ret =
-          await GttUtilities.postIssue(createIssue(note));
+      Map<String, dynamic> ret = await GttUtilities.postIssue(
+          GttUtilities.createIssue(note, _selectedProj));
+
       debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
           "status_message: ${ret["status_message"]}");
-      /*
-      var uploadWidget = ProjectDataUploadListTileProgressWidget(
-        dio,
-        db,
-        _uploadDataUrl,
-        note,
-        authHeader: _authHeader,
-        orderNotifier: uploadOrder,
-        order: order++,
-      );
-      _uploadTiles.add(uploadWidget);
-       */
+
+      if (ret["status_code"] == 201) {
+        uploadCount++;
+
+        note.isDirty = 0;
+        db.updateNoteDirty(note.id, false);
+      }
     }
+    _uploadTiles.add(GttUtilities.getResultTile(
+        "Simple Notes Upload ", "$uploadCount Notes uploaded to GTT Server"));
+
+    /**
+     * Form Notes Upload
+     */
     List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
+    uploadCount = 0;
+
     for (Note note in formNotes) {
-      Map<String, dynamic> ret =
-          await GttUtilities.postIssue(createIssue(note));
+      Map<String, dynamic> ret = await GttUtilities.postIssue(
+          GttUtilities.createIssue(note, _selectedProj));
+
       debugPrint("FormNote status_code: ${ret["status_code"]}, "
           "status_message: ${ret["status_message"]}");
-      /*
-      var uploadWidget = ProjectDataUploadListTileProgressWidget(
-        dio,
-        db,
-        _uploadDataUrl,
-        note,
-        authHeader: _authHeader,
-        orderNotifier: uploadOrder,
-        order: order++,
-      );
-      _uploadTiles.add(uploadWidget);
-       */
+
+      if (ret["status_code"] == 201) {
+        uploadCount++;
+
+        note.isDirty = 0;
+        db.updateNoteDirty(note.id, false);
+      }
     }
+    _uploadTiles.add(GttUtilities.getResultTile(
+        "Form Notes Upload", "$uploadCount Forms uploaded to GTT Server"));
+
+    /**
+     * Image Upload
+     */
     List<DbImage> imagesList = db.getImages(onlyDirty: true);
     for (var image in imagesList) {
       /*
@@ -466,6 +451,9 @@ class _GttExportWidgetState extends State<GttExportWidget> {
        */
     }
 
+    /**
+     * Log Upload
+     */
     List<Log> logsList = db.getLogs(onlyDirty: true);
     for (Log log in logsList) {
       /*
