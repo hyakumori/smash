@@ -193,7 +193,7 @@ class GttUtilities {
           if (fKey.startsWith("cf_")) {
             Map<String, dynamic> customField = {
               "id": int.parse(fKey.substring(3)),
-              "val": f["value"],
+              "value": f["value"],
             };
 
             customFields.add(customField);
