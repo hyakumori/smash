@@ -51,7 +51,7 @@ class GttUtilities {
     List<Map<String, dynamic>> retVal = List<Map<String, dynamic>>();
 
     String url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
-        "/projects.json?limit=100000000";
+        "/projects.json?limit=100000000&include=enabled_modules";
 
     String apiKey = GpPreferences().getStringSync(KEY_GTT_SERVER_KEY);
 
@@ -74,7 +74,15 @@ class GttUtilities {
 
         //retVal = response.data["projects"] as List<Map<String, dynamic>>;
         for (Map<String, dynamic> ret in response.data["projects"]) {
-          retVal.add(ret);
+          for (Map<String, dynamic> module in ret["enabled_modules"]) {
+            /**
+             * getting only Projects with gtt_smash module enabled
+             */
+            if (module["name"] == "gtt_smash") {
+              retVal.add(ret);
+              break;
+            }
+          }
         }
       }
     } catch (exception) {
@@ -116,23 +124,79 @@ class GttUtilities {
     return retVal;
   }
 
+  static int getPriorityId(String p, List<dynamic> arr) {
+    int count = 1;
+
+    for (Map<String, dynamic> a in arr) {
+      if (p == a["item"]) {
+        break;
+      }
+      count++;
+    }
+    return count;
+  }
+
   static Map<String, dynamic> createIssue(Note note, String selectedProj) {
     String geoJson = "{\"type\": \"Feature\",\"properties\": {},"
         "\"geometry\": {\"type\": \"Point\",\"coordinates\": "
         "[${note.lon}, ${note.lat}]}}";
 
+    String projectId = selectedProj;
     String subject = note.text.isEmpty ? "SMASH issue" : note.text;
     String description =
         note.description.isEmpty ? "SMASH issue" : note.description;
 
+    int trackerId = 3;
+    int priorityId = 2;
+    String isPrivate = "false";
+
+    List<Map<String, dynamic>> customFields = List<Map<String, dynamic>>();
+
     if (note.hasForm()) {
       final form = json.decode(note.form);
-      if ("text note".compareTo(form["sectionname"]) == 0) {
+      String sectionName = form["sectionname"];
+
+      if (sectionName == "text note") {
         for (var f in form["forms"][0]["formitems"]) {
-          if ("title".compareTo(f["key"]) == 0) {
+          if (f["key"] == "title") {
             subject = f["value"];
-          } else if ("description".compareTo(f["key"]) == 0) {
+          }
+          if (f["key"] == "description") {
             description = f["value"];
+          }
+        }
+      } else if (sectionName.startsWith("GTT_")) {
+        for (var f in form["forms"][0]["formitems"]) {
+          String fKey = f["key"];
+
+          switch (fKey) {
+            case "project_id":
+              //projectId = f["value"];
+              break;
+            case "tracker_id":
+              trackerId = int.parse(f["value"]);
+              break;
+            case "priority_id":
+              priorityId = getPriorityId(f["value"], f["values"]["items"]);
+              break;
+            case "is_private":
+              isPrivate = f["value"];
+              break;
+            case "subject":
+              subject = f["value"];
+              break;
+            case "description":
+              description = f["value"];
+              break;
+          }
+
+          if (fKey.startsWith("cf_")) {
+            Map<String, dynamic> customField = {
+              "id": int.parse(fKey.substring(3)),
+              "val": f["value"],
+            };
+
+            customFields.add(customField);
           }
         }
       } else {
@@ -141,17 +205,21 @@ class GttUtilities {
     }
 
     Map<String, dynamic> params = {
-      "project_id": selectedProj,
-      "priority_id": 2,
-      "tracker_id": 3,
+      "project_id": projectId,
+      "priority_id": priorityId,
+      "tracker_id": trackerId,
       "subject": subject,
       "description": description,
+      "is_private": isPrivate,
+      "custom_fields": customFields,
       "geojson": geoJson,
     };
 
     Map<String, dynamic> issue = {
       "issue": params,
     };
+
+    debugPrint("Issue: ${issue.toString()}");
 
     return issue;
   }

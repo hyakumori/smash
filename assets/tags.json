@@ -68,6 +68,249 @@
       }
     ]
   },
+    {
+      "sectionname": "GTT_Task",
+      "sectiondescription": "",
+      "sectionicon": "image",
+      "forms": [
+        {
+          "formname": "Task",
+          "formitems": [
+            {
+              "key": "project_id",
+              "value": "1",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "tracker_id",
+              "value": "1",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "subject",
+              "label": "題名",
+              "value": "",
+              "type": "string",
+              "mandatory": "yes"
+            },
+            {
+              "key": "priority_id",
+              "label": "優先度",
+              "values": {
+                "items": [
+                  {
+                    "item": "Low"
+                  },
+                  {
+                    "item": "Normal"
+                  },
+                  {
+                    "item": "High"
+                  },
+                  {
+                    "item": "Urgent"
+                  },
+                  {
+                    "item": "Immediate"
+                  }
+                ]
+              },
+              "value": "Normal",
+              "type": "stringcombo",
+              "mandatory": "yes"
+            },
+            {
+              "key": "is_private",
+              "label": "プライベート",
+              "type": "boolean",
+              "mandatory": "yes"
+            },
+            {
+              "key": "description",
+              "label": "説明",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "key": "attachments",
+              "value": "",
+              "type": "pictures"
+            },
+            {
+              "key": "cf_1",
+              "label": "Number of trees",
+              "value": "",
+              "type": "integer",
+              "mandatory": "false"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionname": "GTT_Feature",
+      "sectiondescription": "",
+      "sectionicon": "image",
+      "forms": [
+        {
+          "formname": "Feature",
+          "formitems": [
+            {
+              "key": "project_id",
+              "value": "1",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "tracker_id",
+              "value": "2",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "subject",
+              "label": "題名",
+              "value": "",
+              "type": "string",
+              "mandatory": "yes"
+            },
+            {
+              "key": "priority_id",
+              "label": "優先度",
+              "values": {
+                "items": [
+                  {
+                    "item": "Low"
+                  },
+                  {
+                    "item": "Normal"
+                  },
+                  {
+                    "item": "High"
+                  },
+                  {
+                    "item": "Urgent"
+                  },
+                  {
+                    "item": "Immediate"
+                  }
+                ]
+              },
+              "value": "Normal",
+              "type": "stringcombo",
+              "mandatory": "yes"
+            },
+            {
+              "key": "is_private",
+              "label": "プライベート",
+              "type": "boolean",
+              "mandatory": "yes"
+            },
+            {
+              "key": "description",
+              "label": "説明",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "key": "attachments",
+              "value": "",
+              "type": "pictures"
+            },
+            {
+              "key": "cf_1",
+              "label": "Number of trees",
+              "value": "",
+              "type": "integer",
+              "mandatory": "false"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionname": "GTT_Support",
+      "sectiondescription": "",
+      "sectionicon": "image",
+      "forms": [
+        {
+          "formname": "Support",
+          "formitems": [
+            {
+              "key": "project_id",
+              "value": "1",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "tracker_id",
+              "value": "3",
+              "type": "hidden",
+              "mandatory": "yes"
+            },
+            {
+              "key": "subject",
+              "label": "題名",
+              "value": "",
+              "type": "string",
+              "mandatory": "yes"
+            },
+            {
+              "key": "priority_id",
+              "label": "優先度",
+              "values": {
+                "items": [
+                  {
+                    "item": "Low"
+                  },
+                  {
+                    "item": "Normal"
+                  },
+                  {
+                    "item": "High"
+                  },
+                  {
+                    "item": "Urgent"
+                  },
+                  {
+                    "item": "Immediate"
+                  }
+                ]
+              },
+              "value": "Normal",
+              "type": "stringcombo",
+              "mandatory": "yes"
+            },
+            {
+              "key": "is_private",
+              "label": "プライベート",
+              "type": "boolean",
+              "mandatory": "yes"
+            },
+            {
+              "key": "description",
+              "label": "説明",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "key": "attachments",
+              "value": "",
+              "type": "pictures"
+            },
+            {
+              "key": "cf_1",
+              "label": "Number of trees",
+              "value": "",
+              "type": "integer",
+              "mandatory": "false"
+            }
+          ]
+        }
+      ]
+    },
   {
     "sectionname": "examples",
     "sectiondescription": "examples of supported form widgets",

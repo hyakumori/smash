@@ -47,6 +47,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
   int _formNotesCount;
   int _imagesCount;
 
+  bool _uploadCompleted = false;
   List<Widget> _uploadTiles;
   List<DropdownMenuItem> _projects = List<DropdownMenuItem>();
   String _selectedProj;
@@ -348,8 +349,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                             )
                                           : _status == 2
                                               ? Center(
-                                                  child: _uploadTiles.length ==
-                                                          0
+                                                  child: !_uploadCompleted
                                                       ? SmashCircularProgress(
                                                           label:
                                                               "Uploading data")
@@ -369,11 +369,11 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                 if (!await NetworkUtilities.isConnected()) {
                   SmashDialogs.showOperationNeedsNetwork(context);
                 } else {
-                  //await uploadProjectData();
                   setState(() {
                     _status = 2;
-                    uploadProjectData();
+                    _uploadCompleted = false;
                   });
+                  uploadProjectData();
                 }
               },
               label: Text("Upload"))
@@ -388,32 +388,9 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     _uploadTiles = [];
 
     /**
-     * Simple Notes Upload
-     */
-    List<Note> simpleNotes = db.getNotes(doSimple: true, onlyDirty: true);
-
-    for (Note note in simpleNotes) {
-      Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createIssue(note, _selectedProj));
-
-      debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
-          "status_message: ${ret["status_message"]}");
-
-      if (ret["status_code"] == 201) {
-        uploadCount++;
-
-        note.isDirty = 0;
-        db.updateNoteDirty(note.id, false);
-      }
-    }
-    _uploadTiles.add(GttUtilities.getResultTile(
-        "Simple Notes Upload ", "$uploadCount Notes uploaded to GTT Server"));
-
-    /**
      * Form Notes Upload
      */
     List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
-    uploadCount = 0;
 
     for (Note note in formNotes) {
       Map<String, dynamic> ret = await GttUtilities.postIssue(
@@ -426,11 +403,34 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         uploadCount++;
 
         note.isDirty = 0;
-        db.updateNoteDirty(note.id, false);
+        await db.updateNoteDirty(note.id, false);
       }
     }
     _uploadTiles.add(GttUtilities.getResultTile(
         "Form Notes Upload", "$uploadCount Forms uploaded to GTT Server"));
+
+    /**
+     * Simple Notes Upload
+     */
+    List<Note> simpleNotes = db.getNotes(doSimple: true, onlyDirty: true);
+    uploadCount = 0;
+
+    for (Note note in simpleNotes) {
+      Map<String, dynamic> ret = await GttUtilities.postIssue(
+          GttUtilities.createIssue(note, _selectedProj));
+
+      debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
+          "status_message: ${ret["status_message"]}");
+
+      if (ret["status_code"] == 201) {
+        uploadCount++;
+
+        note.isDirty = 0;
+        await db.updateNoteDirty(note.id, false);
+      }
+    }
+    _uploadTiles.add(GttUtilities.getResultTile(
+        "Simple Notes Upload ", "$uploadCount Notes uploaded to GTT Server"));
 
     /**
      * Image Upload
@@ -472,6 +472,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
     setState(() {
       _status = 2;
+      _uploadCompleted = true;
     });
   }
 }
