@@ -5,6 +5,7 @@
  */
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dart_hydrologis_utils/dart_hydrologis_utils.dart';
 import 'package:flutter/material.dart';
@@ -381,6 +382,47 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     );
   }
 
+  Future<List<Map<String, dynamic>>> uploadImageData(Note note, var db) async {
+    List<Map<String, dynamic>> retVal = List<Map<String, dynamic>>();
+
+    if (note.hasForm()) {
+      List<String> imageIds = FormUtilities.getImageIds(note.form);
+
+      if (imageIds.isNotEmpty) {
+        for (String imageId in imageIds) {
+          debugPrint("ImageID: $imageId");
+
+          DbImage dbImage = db.getImageById(int.parse(imageId));
+          Uint8List imageBytes = db.getImageDataBytes(dbImage.imageDataId);
+
+          String imageName = "img_$imageId.jpg";
+
+          Map<String, dynamic> ret =
+              await GttUtilities.postImage(imageBytes, imageName);
+
+          if (ret["status_code"] == 201) {
+            Map<String, dynamic> retData = ret["status_data"];
+            String token = retData["upload"]["token"];
+
+            debugPrint("Image Upload status_code: ${ret["status_code"]}, "
+                "token: $token "
+                "status_data: ${ret["status_data"].toString()} ");
+
+            Map<String, dynamic> r = {
+              "token": token,
+              "filename": imageName,
+              "content_type": "image/jpg",
+            };
+
+            retVal.add(r);
+          }
+        }
+      }
+    }
+
+    return retVal;
+  }
+
   Future uploadProjectData() async {
     var db = widget.projectDb;
     int uploadCount = 0;
@@ -393,8 +435,10 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
 
     for (Note note in formNotes) {
+      List<Map<String, dynamic>> uploads = await uploadImageData(note, db);
+
       Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createIssue(note, _selectedProj));
+          GttUtilities.createIssue(note, _selectedProj, uploads));
 
       debugPrint("FormNote status_code: ${ret["status_code"]}, "
           "status_message: ${ret["status_message"]}");
@@ -416,8 +460,10 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     uploadCount = 0;
 
     for (Note note in simpleNotes) {
+      List<Map<String, dynamic>> uploads = await uploadImageData(note, db);
+
       Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createIssue(note, _selectedProj));
+          GttUtilities.createIssue(note, _selectedProj, uploads));
 
       debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
           "status_message: ${ret["status_message"]}");

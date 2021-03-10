@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +92,40 @@ class GttUtilities {
     return retVal;
   }
 
+  static Future<Map<String, dynamic>> postImage(
+      Uint8List imageBytes, String imageName) async {
+    Map<String, dynamic> retVal = Map<String, dynamic>();
+
+    String url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
+        "/uploads.json?filename=$imageName";
+
+    String apiKey = GpPreferences().getStringSync(KEY_GTT_SERVER_KEY);
+
+    try {
+      Dio dio = NetworkHelper.getNewDioInstance();
+
+      Response response = await dio.post(
+        url,
+        options: Options(
+          headers: {
+            "X-Redmine-API-Key": apiKey,
+            "Content-Type": "application/octet-stream",
+          },
+        ),
+        data: Stream.fromIterable(imageBytes.map((e) => [e])),
+      );
+
+      retVal = {
+        "status_code": response.statusCode,
+        "status_message": response.statusMessage,
+        "status_data": response.data,
+      };
+    } catch (exception) {
+      debugPrint("Image Error: $exception");
+    }
+    return retVal;
+  }
+
   static Future<Map<String, dynamic>> postIssue(
       Map<String, dynamic> params) async {
     Map<String, dynamic> retVal = Map<String, dynamic>();
@@ -119,7 +154,7 @@ class GttUtilities {
         "status_message": response.statusMessage,
       };
     } catch (exception) {
-      debugPrint("User Projects Error: $exception");
+      debugPrint("Issue Error: $exception");
     }
     return retVal;
   }
@@ -136,7 +171,8 @@ class GttUtilities {
     return count;
   }
 
-  static Map<String, dynamic> createIssue(Note note, String selectedProj) {
+  static Map<String, dynamic> createIssue(
+      Note note, String selectedProj, List<Map<String, dynamic>> uploads) {
     String geoJson = "{\"type\": \"Feature\",\"properties\": {},"
         "\"geometry\": {\"type\": \"Point\",\"coordinates\": "
         "[${note.lon}, ${note.lat}]}}";
@@ -213,6 +249,7 @@ class GttUtilities {
       "is_private": isPrivate,
       "custom_fields": customFields,
       "geojson": geoJson,
+      "uploads": uploads,
     };
 
     Map<String, dynamic> issue = {
