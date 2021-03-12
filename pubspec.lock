@@ -35,7 +35,7 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.2"
+    version: "2.5.0"
   background_locator:
     dependency: "direct main"
     description:
@@ -51,7 +51,7 @@ packages:
       name: badges
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.6"
+    version: "1.2.0"
   barcode:
     dependency: transitive
     description:
@@ -65,14 +65,14 @@ packages:
       name: buffer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.7"
+    version: "1.1.0"
   cached_network_image:
     dependency: transitive
     description:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.5.0"
+    version: "2.5.1"
   catcher:
     dependency: "direct main"
     description:
@@ -86,28 +86,28 @@ packages:
       name: characters
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0-nullsafety.3"
+    version: "1.1.0"
   charcode:
     dependency: transitive
     description:
       name: charcode
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.3"
+    version: "1.2.0"
   clock:
     dependency: transitive
     description:
       name: clock
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1"
+    version: "1.1.0"
   collection:
     dependency: transitive
     description:
       name: collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.0-nullsafety.3"
+    version: "1.15.0"
   console_log_handler:
     dependency: transitive
     description:
@@ -142,21 +142,21 @@ packages:
       name: dart_hydrologis_db
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1"
+    version: "0.6.2+1"
   dart_hydrologis_utils:
     dependency: "direct main"
     description:
       name: dart_hydrologis_utils
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.3+1"
+    version: "0.5.4+2"
   dart_jts:
     dependency: "direct main"
     description:
       name: dart_jts
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.6+1"
+    version: "0.0.7+2"
   dart_postgis:
     dependency: "direct main"
     description:
@@ -170,7 +170,7 @@ packages:
       name: dart_shp
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1+2"
+    version: "0.3.2"
   device_info:
     dependency: transitive
     description:
@@ -202,10 +202,12 @@ packages:
   extended_image:
     dependency: "direct main"
     description:
-      name: extended_image
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.5.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: "37f9fc14a901b863df06a1ff49979741f09cb164"
+      url: "https://github.com/moovida/extended_image"
+    source: git
+    version: "1.6.0"
   extended_image_library:
     dependency: transitive
     description:
@@ -219,21 +221,21 @@ packages:
       name: ffi
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.3"
+    version: "1.0.0"
   file:
     dependency: transitive
     description:
       name: file
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.2.1"
+    version: "6.1.0"
   file_picker:
     dependency: transitive
     description:
       name: file_picker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.6"
+    version: "2.1.7"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -252,7 +254,7 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   flutter_colorpicker:
     dependency: transitive
     description:
@@ -266,7 +268,7 @@ packages:
       name: flutter_geopackage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.4+1"
+    version: "0.4.6+1"
   flutter_image:
     dependency: transitive
     description:
@@ -277,9 +279,11 @@ packages:
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
-      name: flutter_launcher_icons
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "542cada81f47fdfb81b1f2d73e293374d752c738"
+      url: "https://github.com/moovida/flutter_launcher_icons.git"
+    source: git
     version: "0.8.1"
   flutter_localizations:
     dependency: "direct main"
@@ -330,9 +334,11 @@ packages:
   flutter_material_pickers:
     dependency: transitive
     description:
-      name: flutter_material_pickers
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: "74bf310"
+      resolved-ref: "74bf31035d58a04f42ff3cff79bdf9edea2c6adc"
+      url: "https://github.com/moovida/flutter_material_pickers.git"
+    source: git
     version: "1.9.2"
   flutter_plugin_android_lifecycle:
     dependency: transitive
@@ -361,7 +367,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.19.1"
+    version: "0.19.3"
   flutter_tags:
     dependency: transitive
     description:
@@ -380,7 +386,7 @@ packages:
       name: fluttertoast
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.1.6"
+    version: "7.1.8"
   geocoder:
     dependency: "direct main"
     description:
@@ -401,21 +407,16 @@ packages:
       name: geoimage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.2"
+    version: "0.1.2+2"
   gpx:
     dependency: "direct main"
     description:
-      name: gpx
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: "540e167"
+      resolved-ref: "540e1670d3b7633419b78bb3f0818b2f5365b5af"
+      url: "https://github.com/moovida/dart-gpx.git"
+    source: git
     version: "1.1.1"
-  hex:
-    dependency: transitive
-    description:
-      name: hex
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   http:
     dependency: transitive
     description:
@@ -464,7 +465,14 @@ packages:
       name: intl
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.16.1"
+    version: "0.17.0"
+  js:
+    dependency: transitive
+    description:
+      name: js
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.3"
   lat_lon_grid_plugin:
     dependency: "direct main"
     description:
@@ -513,9 +521,9 @@ packages:
     dependency: "direct main"
     description:
       path: mapsforge_flutter
-      ref: d5005f210da9475a5aa1d38b1d21654870826a5e
-      resolved-ref: d5005f210da9475a5aa1d38b1d21654870826a5e
-      url: "https://github.com/mikes222/mapsforge_flutter.git"
+      ref: HEAD
+      resolved-ref: f8e0b4472e6a16ae92a74b13c08b1c0d13fab74d
+      url: "https://github.com/moovida/mapsforge_flutter.git"
     source: git
     version: "1.1.0"
   matcher:
@@ -531,14 +539,14 @@ packages:
       name: material_design_icons_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.5855"
+    version: "4.0.5955"
   meta:
     dependency: transitive
     description:
       name: meta
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.3"
+    version: "1.3.0"
   mgrs_dart:
     dependency: transitive
     description:
@@ -559,7 +567,7 @@ packages:
       name: nested
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4"
+    version: "1.0.0"
   octo_image:
     dependency: transitive
     description:
@@ -580,7 +588,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0-nullsafety.1"
+    version: "1.8.0"
   path_drawing:
     dependency: transitive
     description:
@@ -636,21 +644,21 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4+3"
+    version: "0.0.5"
   pdf:
     dependency: "direct main"
     description:
       name: pdf
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   pedantic:
     dependency: "direct dev"
     description:
       name: pedantic
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.9.2"
+    version: "1.11.0"
   permission_handler:
     dependency: "direct main"
     description:
@@ -678,7 +686,7 @@ packages:
       name: platform
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.1"
+    version: "3.0.0"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -706,7 +714,7 @@ packages:
       name: process
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.13"
+    version: "4.1.0"
   proj4dart:
     dependency: transitive
     description:
@@ -828,8 +836,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: a7da128
-      resolved-ref: a7da12876cc61130b1b220256e3b91aab1a248ae
+      ref: c4bd45f
+      resolved-ref: c4bd45f94641693bbeb64860b2d90e06b9101587
       url: "https://github.com/moovida/smashlibs.git"
     source: git
     version: "1.0.0"
@@ -839,14 +847,14 @@ packages:
       name: source_span
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.1"
   sqflite:
     dependency: transitive
     description:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.2+3"
+    version: "1.3.2+4"
   sqflite_common:
     dependency: transitive
     description:
@@ -860,7 +868,7 @@ packages:
       name: sqlite3
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.8"
+    version: "1.0.0"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:
@@ -881,7 +889,7 @@ packages:
       name: string_scanner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.1.0"
   synchronized:
     dependency: "direct main"
     description:
@@ -895,7 +903,7 @@ packages:
       name: term_glyph
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.2.0"
   transparent_image:
     dependency: transitive
     description:
@@ -923,7 +931,7 @@ packages:
       name: typed_data
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0-nullsafety.3"
+    version: "1.3.0"
   unicode:
     dependency: transitive
     description:
@@ -1000,14 +1008,14 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0-nullsafety.3"
+    version: "2.1.0"
   win32:
     dependency: transitive
     description:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.4+1"
+    version: "2.0.0"
   wkt_parser:
     dependency: transitive
     description:
@@ -1023,7 +1031,7 @@ packages:
     source: hosted
     version: "0.1.2"
   xml:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: xml
       url: "https://pub.dartlang.org"
@@ -1037,5 +1045,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.10.2 <2.11.0"
-  flutter: ">=1.22.2 <2.0.0"
+  dart: ">=2.12.0 <3.0.0"
+  flutter: ">=1.24.0-10.1.pre"
