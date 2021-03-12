@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:smash/eu/hydrologis/smash/gtt/gtt_uilities.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/images.dart';
-import 'package:smash/eu/hydrologis/smash/project/objects/logs.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/notes.dart';
 import 'package:smash/eu/hydrologis/smash/project/project_database.dart';
 import 'package:smashlibs/smashlibs.dart';
@@ -50,7 +49,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
   bool _uploadCompleted = false;
   List<Widget> _uploadTiles;
-  List<DropdownMenuItem> _projects = List<DropdownMenuItem>();
+  List<DropdownMenuItem> _projects = [];
   String _selectedProj;
 
   @override
@@ -383,7 +382,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
   }
 
   Future<List<Map<String, dynamic>>> uploadImageData(Note note, var db) async {
-    List<Map<String, dynamic>> retVal = List<Map<String, dynamic>>();
+    List<Map<String, dynamic>> retVal = [];
 
     if (note.hasForm()) {
       List<String> imageIds = FormUtilities.getImageIds(note.form);
@@ -481,9 +480,10 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     /**
      * Image Upload
      */
+    /*
     List<DbImage> imagesList = db.getImages(onlyDirty: true);
+
     for (var image in imagesList) {
-      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -494,15 +494,15 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
-       */
     }
+     */
 
     /**
      * Log Upload
      */
+    /*
     List<Log> logsList = db.getLogs(onlyDirty: true);
     for (Log log in logsList) {
-      /*
       var uploadWidget = ProjectDataUploadListTileProgressWidget(
         dio,
         db,
@@ -513,8 +513,8 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         order: order++,
       );
       _uploadTiles.add(uploadWidget);
-       */
     }
+     */
 
     setState(() {
       _status = 2;

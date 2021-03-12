@@ -49,7 +49,7 @@ class GttUtilities {
   }
 
   static Future<List<Map<String, dynamic>>> getUserProjects() async {
-    List<Map<String, dynamic>> retVal = List<Map<String, dynamic>>();
+    List<Map<String, dynamic>> retVal = [];
 
     String url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
         "/projects.json?limit=100000000&include=enabled_modules";
@@ -186,7 +186,7 @@ class GttUtilities {
     int priorityId = 2;
     String isPrivate = "false";
 
-    List<Map<String, dynamic>> customFields = List<Map<String, dynamic>>();
+    List<Map<String, dynamic>> customFields = [];
 
     if (note.hasForm()) {
       final form = json.decode(note.form);
