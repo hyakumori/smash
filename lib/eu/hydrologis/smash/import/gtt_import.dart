@@ -290,9 +290,14 @@ class _GttImportWidgetState extends State<GttImportWidget> {
       try {
         var formsFolder = await Workspace.getFormsFolder();
         String fileName =
-            FileUtilities.joinPaths(formsFolder.path, "gtt_form.json");
+            FileUtilities.joinPaths(formsFolder.path, "gtt_tags.json");
 
         FileUtilities.writeStringToFile(fileName, form);
+        /*
+        String TAGSFILENAME_ENDPATTERN = "tags.json";
+        List<String> fileNames = FileUtilities.getFilesInPathByExt(
+            formsFolder.path, TAGSFILENAME_ENDPATTERN);
+         */
       } catch (e) {
         debugPrint("Import Error: $e");
       }

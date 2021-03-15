@@ -118,7 +118,7 @@ class GttUtilities {
       if (response.statusCode == 200) {
         debugPrint("Msg: ${response.statusMessage} ");
 
-        retVal = response.data.toString();
+        retVal = jsonEncode(response.data);
       }
     } catch (exception) {
       debugPrint("Import Project Forms Error: $exception");
