@@ -130,9 +130,6 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
     _selectedProj = "${projects[0]["id"]}";
 
-    //_uploadDataUrl = _serverUrl + GssUtilities.SYNCH_PATH;
-    //_authHeader = await GssUtilities.getAuthHeader(pwd);
-
     /**
      * now gather data stats from db
      */
@@ -236,7 +233,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                           child: Padding(
                             padding: SmashUI.defaultPadding(),
                             child: SmashUI.titleText(
-                                "No GSS server url has been set. "
+                                "No GTT server url has been set. "
                                 "Check your settings."),
                           ),
                         )
@@ -245,7 +242,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                               child: Padding(
                                 padding: SmashUI.defaultPadding(),
                                 child: SmashUI.titleText(
-                                    "No GSS server password has been set. "
+                                    "No GTT server password has been set. "
                                     "Check your settings."),
                               ),
                             )
@@ -254,7 +251,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                   child: Padding(
                                     padding: SmashUI.defaultPadding(),
                                     child: SmashUI.titleText(
-                                        "No GSS server user has been set. "
+                                        "No GTT server user has been set. "
                                         "Check your settings."),
                                   ),
                                 )

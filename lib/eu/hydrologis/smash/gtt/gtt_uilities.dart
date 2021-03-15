@@ -92,6 +92,40 @@ class GttUtilities {
     return retVal;
   }
 
+  static Future<String> getProjectForm(String projectId) async {
+    String retVal = "";
+
+    String url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
+        "/projects/$projectId/smash/tags.json";
+
+    debugPrint("Import URL: $url ");
+
+    String apiKey = GpPreferences().getStringSync(KEY_GTT_SERVER_KEY);
+
+    try {
+      Dio dio = NetworkHelper.getNewDioInstance();
+
+      Response response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            "X-Redmine-API-Key": apiKey,
+            "Content-Type": "application/json",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint("Msg: ${response.statusMessage} ");
+
+        retVal = response.data.toString();
+      }
+    } catch (exception) {
+      debugPrint("Import Project Forms Error: $exception");
+    }
+    return retVal;
+  }
+
   static Future<Map<String, dynamic>> postImage(
       Uint8List imageBytes, String imageName) async {
     Map<String, dynamic> retVal = Map<String, dynamic>();
@@ -261,10 +295,11 @@ class GttUtilities {
     return issue;
   }
 
-  static Widget getResultTile(String name, String description) {
+  static Widget getResultTile(String name, String description,
+      {bool isImport = false}) {
     return ListTile(
       leading: Icon(
-        SmashIcons.upload,
+        isImport ? SmashIcons.importIcon : SmashIcons.upload,
         color: SmashColors.mainDecorations,
       ),
       title: Text(name),
