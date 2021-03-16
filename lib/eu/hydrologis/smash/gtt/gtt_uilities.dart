@@ -230,7 +230,7 @@ class GttUtilities {
       String sectionName = form["sectionname"];
       String sectionDesc = form["sectiondescription"];
 
-      if (sectionName == "text note") {
+      if (sectionName != null && sectionName == "text note") {
         for (var f in form["forms"][0]["formitems"]) {
           if (f["key"] == "title") {
             subject = f["value"];
@@ -239,7 +239,7 @@ class GttUtilities {
             description = f["value"];
           }
         }
-      } else if (sectionDesc.contains("GTT")) {
+      } else if (sectionDesc != null && sectionDesc.contains("GTT")) {
         for (var f in form["forms"][0]["formitems"]) {
           String fKey = f["key"];
 
