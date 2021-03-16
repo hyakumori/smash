@@ -219,12 +219,16 @@ class GttUtilities {
     int trackerId = 3;
     int priorityId = 2;
     String isPrivate = "false";
+    String startDate = "";
+    String dueDate = "";
 
     List<Map<String, dynamic>> customFields = [];
 
     if (note.hasForm()) {
       final form = json.decode(note.form);
+
       String sectionName = form["sectionname"];
+      String sectionDesc = form["sectiondescription"];
 
       if (sectionName == "text note") {
         for (var f in form["forms"][0]["formitems"]) {
@@ -235,19 +239,20 @@ class GttUtilities {
             description = f["value"];
           }
         }
-      } else if (sectionName.startsWith("GTT_")) {
+      } else if (sectionDesc.contains("GTT")) {
         for (var f in form["forms"][0]["formitems"]) {
           String fKey = f["key"];
 
           switch (fKey) {
             case "project_id":
-              //projectId = f["value"];
+              projectId = f["value"] != null ? f["value"] : projectId;
               break;
             case "tracker_id":
               trackerId = int.parse(f["value"]);
               break;
             case "priority_id":
-              priorityId = getPriorityId(f["value"], f["values"]["items"]);
+              //priorityId = getPriorityId(f["value"], f["values"]["items"]);
+              priorityId = int.parse(f["value"]);
               break;
             case "is_private":
               isPrivate = f["value"];
@@ -257,6 +262,12 @@ class GttUtilities {
               break;
             case "description":
               description = f["value"];
+              break;
+            case "start_date":
+              startDate = f["value"];
+              break;
+            case "due_date":
+              dueDate = f["value"];
               break;
           }
 
@@ -281,6 +292,8 @@ class GttUtilities {
       "subject": subject,
       "description": description,
       "is_private": isPrivate,
+      "start_date": startDate,
+      "due_date": dueDate,
       "custom_fields": customFields,
       "geojson": geoJson,
       "uploads": uploads,

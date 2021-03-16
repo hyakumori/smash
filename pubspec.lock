@@ -836,9 +836,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c4bd45f
-      resolved-ref: c4bd45f94641693bbeb64860b2d90e06b9101587
-      url: "https://github.com/moovida/smashlibs.git"
+      ref: "feature/combo_label_value"
+      resolved-ref: "3bc4ad5ccb0296dc94c39c1c67d912c07b3eb444"
+      url: "https://github.com/hyakumori/smashlibs.git"
     source: git
     version: "1.0.0"
   source_span:
