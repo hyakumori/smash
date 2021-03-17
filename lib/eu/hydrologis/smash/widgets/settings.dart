@@ -2372,36 +2372,6 @@ class GttSettingsState extends State<GttSettings> with AfterLayoutMixin {
                       ),
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                    child: Card(
-                      margin: SmashUI.defaultMargin(),
-                      color: SmashColors.mainBackground,
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: SmashUI.defaultPadding(),
-                            child: SmashUI.normalText(
-                                "Allow self signed certificates",
-                                bold: true),
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(
-                                  top: p, bottom: p, right: p, left: 2 * p),
-                              child: Checkbox(
-                                value: _allowSelfCert,
-                                onChanged: (newValue) async {
-                                  await GpPreferences().setBoolean(
-                                      SmashPreferencesKeys
-                                          .KEY_GSS_SERVER_ALLOW_SELFCERTIFICATE,
-                                      newValue);
-                                  await getData();
-                                },
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
