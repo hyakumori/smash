@@ -35,8 +35,11 @@ class _GttImportWidgetState extends State<GttImportWidget> {
   String _serverUrl;
 
   bool _importCompleted = false;
+
   List<Widget> _uploadTiles = [];
   List<DropdownMenuItem> _projects = [];
+  List<bool> _projectSelected = [true, false];
+
   String _selectedProj;
 
   @override
@@ -130,15 +133,35 @@ class _GttImportWidgetState extends State<GttImportWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ToggleButtons(
+              children: [
+                Text("      Single Project      "),
+                Text("      All Projects      "),
+              ],
+              isSelected: _projectSelected,
+              onPressed: (index) => setState(() {
+                if (index == 0) {
+                  _projectSelected = [true, false];
+                } else {
+                  _projectSelected = [false, true];
+                }
+              }),
+            ),
+            SizedBox(
+              height: 32.0,
+            ),
             SmashUI.normalText(
               "Choose GTT Project:",
               bold: true,
               color: Colors.blue,
             ),
             DropdownButton(
-                items: _projects,
-                value: _selectedProj,
-                onChanged: (s) => setState(() => _selectedProj = s)),
+              items: _projects,
+              value: _selectedProj,
+              onChanged: _projectSelected[0]
+                  ? (s) => setState(() => _selectedProj = s)
+                  : null,
+            )
           ],
         ),
       ),
@@ -270,7 +293,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
                     _status = 2;
                     _importCompleted = false;
                   });
-                  importProjectFrom();
+                  importProjectForm();
                 }
               },
               label: Text("Import"))
@@ -278,8 +301,10 @@ class _GttImportWidgetState extends State<GttImportWidget> {
     );
   }
 
-  importProjectFrom() async {
-    String form = await GttUtilities.getProjectForm(_selectedProj);
+  importProjectForm() async {
+    String selProj = _projectSelected[0] ? _selectedProj : null;
+
+    String form = await GttUtilities.getProjectForm(selProj);
     debugPrint("Project Form: $form");
 
     int count = 0;

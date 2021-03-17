@@ -95,8 +95,15 @@ class GttUtilities {
   static Future<String> getProjectForm(String projectId) async {
     String retVal = "";
 
-    String url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
-        "/projects/$projectId/smash/tags.json";
+    String url;
+
+    if (projectId == null) {
+      url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
+          "/smash/tags.json";
+    } else {
+      url = "${GpPreferences().getStringSync(KEY_GTT_SERVER_URL)}"
+          "/projects/$projectId/smash/tags.json";
+    }
 
     debugPrint("Import URL: $url ");
 
