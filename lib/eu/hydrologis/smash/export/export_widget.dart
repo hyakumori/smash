@@ -107,7 +107,7 @@ class _ExportWidgetState extends State<ExportWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Export"),
+        title: new Text("エクスポート"),
       ),
       body: ListView(children: <Widget>[
         ListTile(
@@ -124,7 +124,7 @@ class _ExportWidgetState extends State<ExportWidget> {
                       ),
             title: Text("${_pdfBuildStatus == 2 ? 'PDF exported' : 'PDF'}"),
             subtitle: Text(
-                "${_pdfBuildStatus == 2 ? _pdfOutPath : 'Export project to Portable Document Format'}"),
+                "${_pdfBuildStatus == 2 ? _pdfOutPath : 'プロジェクトをPDFにエクスポート'}"),
             onTap: () {
               setState(() {
                 _pdfOutPath = "";
@@ -147,7 +147,7 @@ class _ExportWidgetState extends State<ExportWidget> {
                       ),
             title: Text("${_gpxBuildStatus == 2 ? 'GPX exported' : 'GPX'}"),
             subtitle: Text(
-                "${_gpxBuildStatus == 2 ? _gpxOutPath : 'Export project to GPX'}"),
+                "${_gpxBuildStatus == 2 ? _gpxOutPath : 'プロジェクトをGPXにエクスポート'}"),
             onTap: () {
               setState(() {
                 _gpxOutPath = "";
@@ -170,7 +170,7 @@ class _ExportWidgetState extends State<ExportWidget> {
                       ),
             title: Text("${_kmlBuildStatus == 2 ? 'KML exported' : 'KML'}"),
             subtitle: Text(
-                "${_kmlBuildStatus == 2 ? _kmlOutPath : 'Export project to KML'}"),
+                "${_kmlBuildStatus == 2 ? _kmlOutPath : 'プロジェクトをKMLにエクスポート'}"),
             onTap: () {
               setState(() {
                 _kmlOutPath = "";
@@ -194,7 +194,7 @@ class _ExportWidgetState extends State<ExportWidget> {
             title: Text(
                 "${_gpkgBuildStatus == 2 ? 'Geopackage exported' : 'Geopackage'}"),
             subtitle: Text(
-                "${_gpkgBuildStatus == 2 ? _gpkgOutPath : 'Export project to Geopackage'}"),
+                "${_gpkgBuildStatus == 2 ? _gpkgOutPath : 'プロジェクトをGeopackageにエクスポート'}"),
             onTap: () async {
               setState(() {
                 _gpkgOutPath = "";
@@ -209,7 +209,7 @@ class _ExportWidgetState extends State<ExportWidget> {
               color: SmashColors.mainDecorations,
             ),
             title: Text("GSS"),
-            subtitle: Text("Export to Geopaparazzi Survey Server"),
+            subtitle: Text("Geopaparazzi Survey Serverにエクスポート"),
             onTap: () {
               var projectState =
                   Provider.of<ProjectState>(context, listen: false);
@@ -226,7 +226,7 @@ class _ExportWidgetState extends State<ExportWidget> {
             ),
             title: Text("GTT"),
             subtitle: Text(
-              "Export to GeoTaskTracker Server",
+              "GeoTaskTrackerサーバにエクスポート",
             ),
             onTap: () {
               var projectState =

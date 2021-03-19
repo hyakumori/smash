@@ -373,7 +373,7 @@ class MainViewWidgetState extends State<MainViewWidget> with WidgetsBindingObser
           size: SmashUI.MEDIUM_ICON_SIZE,
         ),
         title: SmashUI.normalText(
-          "Exit",
+          "終了",
           bold: true,
           color: SmashColors.mainDecorations,
         ),
@@ -511,7 +511,7 @@ class MainViewWidgetState extends State<MainViewWidget> with WidgetsBindingObser
           var noteInGpsMode = gpsState.insertInGpsMode;
           var titleWithMode = Column(
             children: [
-              SmashUI.titleText("Form Notes", color: SmashColors.mainSelection, bold: true),
+              SmashUI.titleText("フォームノート", color: SmashColors.mainSelection, bold: true),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: GpsInsertionModeSelector(),
@@ -587,7 +587,7 @@ class MainViewWidgetState extends State<MainViewWidget> with WidgetsBindingObser
 
           var titleWithMode = Column(
             children: [
-              SmashUI.titleText("Simple Notes", color: SmashColors.mainSelection, bold: true),
+              SmashUI.titleText("シンプルノート", color: SmashColors.mainSelection, bold: true),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: GpsInsertionModeSelector(),

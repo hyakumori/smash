@@ -29,7 +29,7 @@ class ProjectView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Project View",
+          "プロジェクトビュー",
         ),
       ),
       body: SingleChildScrollView(
@@ -73,7 +73,7 @@ class ProjectView extends StatelessWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SmashUI.normalText("Open an existing project",
+                    child: SmashUI.normalText("既存のプロジェクトを開く",
                         bold: false, color: SmashColors.mainDecorations),
                   ),
                 ),
@@ -101,7 +101,7 @@ class ProjectView extends StatelessWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: SmashUI.normalText("Create a new project",
+                    child: SmashUI.normalText("新規プロジェクトを作成する",
                         bold: false, color: SmashColors.mainDecorations),
                   ),
                 ),
@@ -168,7 +168,7 @@ class ProjectView extends StatelessWidget {
                             child: Padding(
                               padding:
                                   const EdgeInsets.only(left: 8.0, right: 8.0),
-                              child: SmashUI.normalText("Recent projects",
+                              child: SmashUI.normalText("最近のプロジェクト",
                                   color: SmashColors.mainDecorations),
                             ),
                           ))

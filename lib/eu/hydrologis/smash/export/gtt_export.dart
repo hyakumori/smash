@@ -162,7 +162,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SmashUI.normalText(
-              "Choose GTT Project:",
+              "GTTプロジェクトの選択:",
               bold: true,
               color: Colors.blue,
             ),
@@ -177,7 +177,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("GTT Export"),
+        title: new Text("GTTエクスポート"),
         actions: _status < 2
             ? <Widget>[
                 IconButton(
@@ -285,14 +285,14 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                                     padding: SmashUI
                                                         .defaultPadding(),
                                                     child: SmashUI.titleText(
-                                                        "Sync Stats",
+                                                        "同期統計",
                                                         bold: true),
                                                   ),
                                                   Padding(
                                                     padding: SmashUI
                                                         .defaultPadding(),
                                                     child: SmashUI.smallText(
-                                                        "The following data will be uploaded upon sync.",
+                                                        "以下のデータが同期によりアップロードされます。",
                                                         color: Colors.grey),
                                                   ),
                                                   Expanded(
@@ -306,7 +306,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                                                 .mainDecorations,
                                                           ),
                                                           title: SmashUI.normalText(
-                                                              "Gps Logs: $_gpsLogCount"),
+                                                              "GPSログ: $_gpsLogCount"),
                                                         ),
                                                         ListTile(
                                                           leading: Icon(
@@ -316,7 +316,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                                                 .mainDecorations,
                                                           ),
                                                           title: SmashUI.normalText(
-                                                              "Simple Notes: $_simpleNotesCount"),
+                                                              "シンプルノート: $_simpleNotesCount"),
                                                         ),
                                                         ListTile(
                                                           leading: Icon(
@@ -326,7 +326,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                                                 .mainDecorations,
                                                           ),
                                                           title: SmashUI.normalText(
-                                                              "Form Notes: $_formNotesCount"),
+                                                              "フォームノート: $_formNotesCount"),
                                                         ),
                                                         ListTile(
                                                           leading: Icon(
@@ -336,7 +336,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                                                                 .mainDecorations,
                                                           ),
                                                           title: SmashUI.normalText(
-                                                              "Images: $_imagesCount"),
+                                                              "画像: $_imagesCount"),
                                                         ),
                                                       ],
                                                     ),
@@ -373,7 +373,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
                   uploadProjectData();
                 }
               },
-              label: Text("Upload"))
+              label: Text("アップロード"))
           : null,
     );
   }
@@ -447,7 +447,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
       }
     }
     _uploadTiles.add(GttUtilities.getResultTile(
-        "Form Notes Upload", "$uploadCount Forms uploaded to GTT Server"));
+        "フォームノートのアップロード", "$uploadCount フォームをGTTサーバにアップロードしました"));
 
     /**
      * Simple Notes Upload
@@ -472,7 +472,7 @@ class _GttExportWidgetState extends State<GttExportWidget> {
       }
     }
     _uploadTiles.add(GttUtilities.getResultTile(
-        "Simple Notes Upload ", "$uploadCount Notes uploaded to GTT Server"));
+        "シンプルノートのアップロード ", "$uploadCount ノートをGTTサーバにアップロードしました"));
 
     /**
      * Image Upload

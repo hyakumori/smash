@@ -77,11 +77,11 @@ class NotesListWidgetState extends State<NotesListWidget>
       child: Scaffold(
           appBar: AppBar(
             title: Text(widget._doSimpleNotes
-                ? "Simple Notes List"
-                : "Form Notes List"),
+                ? "シンプルノートリスト"
+                : "フォームノートリスト"),
           ),
           body: _isLoading
-              ? Center(child: SmashCircularProgress(label: "Loading Notes..."))
+              ? Center(child: SmashCircularProgress(label: "ノートを読み込んでいます..."))
               : ListView.builder(
                   itemCount: _notesList.length,
                   itemBuilder: (context, index) {
@@ -141,7 +141,7 @@ class _NoteInfoState extends State<NoteInfo> {
       lat = dynNote.lat;
     }
     actions.add(IconSlideAction(
-        caption: 'Zoom to',
+        caption: 'ズーム',
         color: SmashColors.mainDecorations,
         icon: MdiIcons.magnifyScan,
         onTap: () async {
@@ -152,7 +152,7 @@ class _NoteInfoState extends State<NoteInfo> {
         }));
     if (isForm) {
       actions.add(IconSlideAction(
-        caption: 'Edit',
+        caption: '編集',
         color: SmashColors.mainDecorations,
         icon: MdiIcons.pencil,
         onTap: () async {
@@ -191,12 +191,12 @@ class _NoteInfoState extends State<NoteInfo> {
       ));
     }
     secondaryActions.add(IconSlideAction(
-        caption: 'Delete',
+        caption: '削除',
         color: SmashColors.mainDanger,
         icon: MdiIcons.delete,
         onTap: () async {
           bool doDelete = await SmashDialogs.showConfirmDialog(
-              context, "DELETE", 'Are you sure you want to delete the note?');
+              context, "削除", 'このノートを削除しますか？');
           if (doDelete) {
             if (dynNote is Note) {
               widget.db.deleteNote(id);

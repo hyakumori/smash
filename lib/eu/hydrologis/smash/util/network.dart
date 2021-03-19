@@ -141,8 +141,8 @@ class DownloadMapFromListTileProgressWidgetState
         }
         bool doDownload = await SmashDialogs.showConfirmDialog(
             context,
-            "Download",
-            "Download file $name to the device? This can take some time.");
+            "ダウンロード",
+            "$name ファイルをデバイスにダウンロードしますか？ これにはしばらく時間がかかります。");
         if (doDownload) {
           await downloadFile();
         }
@@ -178,7 +178,7 @@ class MapsDownloadWidgetState extends State<MapsDownloadWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Available maps (${_visualizeList.length})"),
+        title: Text("利用可能な地図 (${_visualizeList.length})"),
       ),
       body: Container(
           child: Column(children: <Widget>[
@@ -190,8 +190,8 @@ class MapsDownloadWidgetState extends State<MapsDownloadWidget> {
             },
             controller: editingController,
             decoration: InputDecoration(
-                labelText: "Search map by name",
-                hintText: "Search map by name",
+                labelText: "地図を名前で検索",
+                hintText: "地図を名前で検索",
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(25.0)))),

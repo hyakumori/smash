@@ -135,8 +135,8 @@ class _GttImportWidgetState extends State<GttImportWidget> {
           children: [
             ToggleButtons(
               children: [
-                Text("      Single Project      "),
-                Text("      All Projects      "),
+                Text("      単一のプロジェクト      "),
+                Text("      すべてのプロジェクト      "),
               ],
               isSelected: _projectSelected,
               onPressed: (index) => setState(() {
@@ -151,7 +151,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
               height: 32.0,
             ),
             SmashUI.normalText(
-              "Choose GTT Project:",
+              "GTTプロジェクトの選択:",
               bold: true,
               color: Colors.blue,
             ),
@@ -169,7 +169,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("GTT Import"),
+        title: new Text("GTTインポート"),
         actions: <Widget>[],
       ),
       body: _status == -1
@@ -244,14 +244,14 @@ class _GttImportWidgetState extends State<GttImportWidget> {
                                                     padding: SmashUI
                                                         .defaultPadding(),
                                                     child: SmashUI.titleText(
-                                                        "Import Project Forms",
+                                                        "プロジェクトフォームのインポート",
                                                         bold: true),
                                                   ),
                                                   Padding(
                                                     padding: SmashUI
                                                         .defaultPadding(),
                                                     child: SmashUI.smallText(
-                                                        "Import Forms from GTT Server Projects",
+                                                        "GTTサーバのプロジェクトからフォームをインポート",
                                                         color: Colors.grey),
                                                   ),
                                                   SizedBox(
@@ -272,7 +272,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
                                                   child: !_importCompleted
                                                       ? SmashCircularProgress(
                                                           label:
-                                                              "Importing Forms")
+                                                              "フォームのインポート中")
                                                       : ListView(
                                                           children:
                                                               _uploadTiles,
@@ -296,7 +296,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
                   importProjectForm();
                 }
               },
-              label: Text("Import"))
+              label: Text("インポート"))
           : null,
     );
   }
@@ -332,7 +332,7 @@ class _GttImportWidgetState extends State<GttImportWidget> {
     }
 
     _uploadTiles.add(GttUtilities.getResultTile(
-        "Project Form Import ", "$count Project Form imported from GTT Server",
+        "プロジェクトフォームのインポート ", "GTTサーバから $count プロジェクトフォームをインポートしました",
         isImport: true));
 
     setState(() {

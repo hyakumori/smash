@@ -22,7 +22,7 @@ class _ImportWidgetState extends State<ImportWidget> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Import"),
+        title: new Text("インポート"),
       ),
       body: ListView(
         children: <Widget>[
@@ -32,7 +32,7 @@ class _ImportWidgetState extends State<ImportWidget> {
               color: SmashColors.mainDecorations,
             ),
             title: Text("GSS"),
-            subtitle: Text("Import from Geopaparazzi Survey Server"),
+            subtitle: Text("Geopaparazzi Survey Serverからのインポート"),
             onTap: () {
               Navigator.push(
                 context,
@@ -46,7 +46,7 @@ class _ImportWidgetState extends State<ImportWidget> {
               color: Colors.red, //SmashColors.mainDecorations,
             ),
             title: Text("GTT"),
-            subtitle: Text("Import from GeoTaskTracker Server"),
+            subtitle: Text("GeoTaskTrackerサーバからのインポート"),
             onTap: () {
               Navigator.push(
                 context,

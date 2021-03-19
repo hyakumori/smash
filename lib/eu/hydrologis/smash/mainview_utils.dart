@@ -97,7 +97,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "Projects",
+          "プロジェクト",
           bold: true,
           color: c,
         ),
@@ -114,7 +114,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "Import",
+          "インポート",
           bold: true,
           color: c,
         ),
@@ -131,7 +131,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "Export",
+          "エクスポート",
           bold: true,
           color: c,
         ),
@@ -148,7 +148,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "Settings",
+          "設定",
           bold: true,
           color: c,
         ),
@@ -165,7 +165,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "Online Help",
+          "オンラインヘルプ",
           bold: true,
           color: c,
         ),
@@ -187,7 +187,7 @@ class DashboardUtils {
           size: iconSize,
         ),
         title: SmashUI.normalText(
-          "About",
+          "このアプリについて",
           bold: true,
           color: c,
         ),
@@ -208,7 +208,7 @@ class DashboardUtils {
         color: backColor,
         child: ListTile(
           title: SmashUI.normalText(
-            "Project Info",
+            "プロジェクト情報",
             bold: true,
             color: c,
           ),
@@ -260,7 +260,7 @@ class DashboardUtils {
       child: ExpansionTile(
           initiallyExpanded: true,
           title: SmashUI.normalText(
-            "Extras",
+            "その他",
             bold: true,
             color: c,
           ),
@@ -272,7 +272,7 @@ class DashboardUtils {
                 size: iconSize,
               ),
               title: SmashUI.normalText(
-                "Available icons",
+                "利用可能なアイコン",
                 bold: true,
                 color: c,
               ),
@@ -289,7 +289,7 @@ class DashboardUtils {
                 size: iconSize,
               ),
               title: SmashUI.normalText(
-                "Offline maps",
+                "オフライン地図",
                 bold: true,
                 color: c,
               ),
@@ -313,7 +313,7 @@ class DashboardUtils {
       child: ExpansionTile(
         initiallyExpanded: true,
         title: SmashUI.normalText(
-          "Position Tools",
+          "位置情報ツール",
           bold: true,
           color: c,
         ),
@@ -325,7 +325,7 @@ class DashboardUtils {
               size: iconSize,
             ),
             title: SmashUI.normalText(
-              "Go to",
+              "目的地",
               bold: true,
               color: c,
             ),
@@ -342,7 +342,7 @@ class DashboardUtils {
               size: iconSize,
             ),
             title: SmashUI.normalText(
-              "Share position",
+              "位置情報の共有",
               bold: true,
               color: c,
             ),

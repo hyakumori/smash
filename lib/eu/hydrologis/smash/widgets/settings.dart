@@ -169,7 +169,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
           color: Colors.red, //SmashColors.mainDecorations,
         ),
         title: SmashUI.normalText("GTT"),
-        subtitle: Text("GeoTaskTracker Server"),
+        subtitle: Text("GeoTaskTrackerサーバ"),
         trailing: Icon(Icons.arrow_right),
         onTap: () {
           _selectedSetting = GttSettings();
@@ -180,7 +180,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Settings"),
+        title: new Text("設定"),
       ),
       body: ListView(children: <Widget>[
         if (gpsState.status != GpsStatus.NOGPS) gpsSettingTile,
@@ -210,8 +210,8 @@ class CameraSetting extends StatefulWidget {
 }
 
 class CameraSettingState extends State<CameraSetting> {
-  static final title = "Camera";
-  static final subtitle = "Camera Resolution";
+  static final title = "カメラ";
+  static final subtitle = "カメラの解像度";
   static final iconData = Icons.camera;
 
   @override
@@ -311,8 +311,8 @@ class ScreenSetting extends StatefulWidget {
 }
 
 class ScreenSettingState extends State<ScreenSetting> {
-  static final title = "Screen";
-  static final subtitle = "Screen, Scalebar and Icon Size";
+  static final title = "画面";
+  static final subtitle = "画面、スケールバー、アイコンサイズ";
   static final int index = 1;
   static final iconData = Icons.fullscreen;
 
@@ -618,7 +618,7 @@ class GpsSettings extends StatefulWidget {
 
 class GpsSettingsState extends State<GpsSettings> {
   static final title = "GPS";
-  static final subtitle = "GPS filters and mock locations";
+  static final subtitle = "GPSフィルタと疑似ロケーション";
   static final iconData = MdiIcons.crosshairsGps;
   List<GpsFilterManagerMessage> gpsInfoList = [];
   List<int> gpsInfoListCounter = [];
@@ -651,7 +651,7 @@ class GpsSettingsState extends State<GpsSettings> {
             ],
           ),
           bottom: TabBar(tabs: [
-            Tab(text: "Settings"),
+            Tab(text: "設定"),
             Tab(text: "Live Preview"),
           ]),
         ),
@@ -1458,8 +1458,8 @@ class VectorLayerSettings extends StatefulWidget {
 }
 
 class VectorLayerSettingsState extends State<VectorLayerSettings> {
-  static final title = "Vector Layers";
-  static final subtitle = "Loading Options and Info Tool";
+  static final title = "ベクタレイヤ";
+  static final subtitle = "読み込みオプションと情報ツール";
   static final iconData = MdiIcons.vectorPolyline;
 
   @override
@@ -1687,8 +1687,8 @@ class DiagnosticsSetting extends StatefulWidget {
 }
 
 class DiagnosticsSettingState extends State<DiagnosticsSetting> {
-  static final title = "Diagnostics";
-  static final subtitle = "Diagnostics & Debug Log";
+  static final title = "診断";
+  static final subtitle = "診断とデバッグログ";
   static final iconData = Icons.bug_report;
 
   @override
@@ -1879,8 +1879,8 @@ class DeviceSettings extends StatefulWidget {
 }
 
 class DeviceSettingsState extends State<DeviceSettings> {
-  static final title = "Device";
-  static final subtitle = "Device identifier";
+  static final title = "デバイス";
+  static final subtitle = "デバイス識別子";
   static final iconData = MdiIcons.tabletCellphone;
 
   String _deviceId;
