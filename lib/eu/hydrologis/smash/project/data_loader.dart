@@ -200,7 +200,7 @@ class DataLoaderUtilities {
               iconColor.withAlpha(80),
             ),
             onTap: () {
-              mapBuilder.scaffoldKey.currentState.showSnackBar(SnackBar(
+              ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
                 backgroundColor: SmashColors.snackBarColor,
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -228,21 +228,24 @@ class DataLoaderUtilities {
                                 children: [
                                   TableUtilities.cellForString("Longitude"),
                                   TableUtilities.cellForString(note.lon
-                                      .toStringAsFixed(SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
+                                      .toStringAsFixed(SmashPreferencesKeys
+                                          .KEY_LATLONG_DECIMALS)),
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   TableUtilities.cellForString("Latitude"),
                                   TableUtilities.cellForString(note.lat
-                                      .toStringAsFixed(SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
+                                      .toStringAsFixed(SmashPreferencesKeys
+                                          .KEY_LATLONG_DECIMALS)),
                                 ],
                               ),
                               TableRow(
                                 children: [
                                   TableUtilities.cellForString("Altitude"),
                                   TableUtilities.cellForString(note.altim
-                                      .toStringAsFixed(SmashPreferencesKeys.KEY_ELEV_DECIMALS)),
+                                      .toStringAsFixed(SmashPreferencesKeys
+                                          .KEY_ELEV_DECIMALS)),
                                 ],
                               ),
                               TableRow(
@@ -285,8 +288,7 @@ class DataLoaderUtilities {
                                   withMarker: true);
                               label = "$label\n$urlStr";
                               ShareHandler.shareText(label);
-                              mapBuilder.scaffoldKey.currentState
-                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                             },
                           ),
                           IconButton(
@@ -327,8 +329,7 @@ class DataLoaderUtilities {
                                         builder: (context) =>
                                             NotePropertiesWidget(note)));
                               }
-                              mapBuilder.scaffoldKey.currentState
-                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                             },
                           ),
                           IconButton(
@@ -349,8 +350,7 @@ class DataLoaderUtilities {
                                     listen: false);
                                 projectState.reloadProject(ctx);
                               }
-                              mapBuilder.scaffoldKey.currentState
-                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                             },
                           ),
                           Spacer(flex: 1),
@@ -361,8 +361,7 @@ class DataLoaderUtilities {
                             ),
                             iconSize: SmashUI.MEDIUM_ICON_SIZE,
                             onPressed: () {
-                              mapBuilder.scaffoldKey.currentState
-                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                             },
                           ),
                         ],
@@ -395,7 +394,7 @@ class DataLoaderUtilities {
             child: GestureDetector(
           onTap: () {
             var thumb = db.getThumbnail(image.imageDataId);
-            mapBuilder.scaffoldKey.currentState.showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               backgroundColor: SmashColors.snackBarColor,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -418,21 +417,24 @@ class DataLoaderUtilities {
                           children: [
                             TableUtilities.cellForString("Longitude"),
                             TableUtilities.cellForString(image.lon
-                                .toStringAsFixed(SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
+                                .toStringAsFixed(
+                                    SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
                           ],
                         ),
                         TableRow(
                           children: [
                             TableUtilities.cellForString("Latitude"),
                             TableUtilities.cellForString(image.lat
-                                .toStringAsFixed(SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
+                                .toStringAsFixed(
+                                    SmashPreferencesKeys.KEY_LATLONG_DECIMALS)),
                           ],
                         ),
                         TableRow(
                           children: [
                             TableUtilities.cellForString("Altitude"),
-                            TableUtilities.cellForString(
-                                image.altim.toStringAsFixed(SmashPreferencesKeys.KEY_ELEV_DECIMALS)),
+                            TableUtilities.cellForString(image.altim
+                                .toStringAsFixed(
+                                    SmashPreferencesKeys.KEY_ELEV_DECIMALS)),
                           ],
                         ),
                         TableRow(
@@ -464,8 +466,7 @@ class DataLoaderUtilities {
                             MaterialPageRoute(
                                 builder: (context) =>
                                     SmashImageZoomWidget(image)));
-                        mapBuilder.scaffoldKey.currentState
-                            .hideCurrentSnackBar();
+                        ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                       },
                     ),
                   ),
@@ -490,8 +491,7 @@ class DataLoaderUtilities {
                             var uint8list =
                                 db.getImageDataBytes(image.imageDataId);
                             await ShareHandler.shareImage(label, uint8list);
-                            mapBuilder.scaffoldKey.currentState
-                                .hideCurrentSnackBar();
+                            ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                           },
                         ),
                         IconButton(
@@ -513,8 +513,7 @@ class DataLoaderUtilities {
                               projectState
                                   .reloadProject(ctx); // TODO check await
                             }
-                            mapBuilder.scaffoldKey.currentState
-                                .hideCurrentSnackBar();
+                            ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                           },
                         ),
                         Spacer(flex: 1),
@@ -525,8 +524,7 @@ class DataLoaderUtilities {
                           ),
                           iconSize: SmashUI.MEDIUM_ICON_SIZE,
                           onPressed: () {
-                            mapBuilder.scaffoldKey.currentState
-                                .hideCurrentSnackBar();
+                            ScaffoldMessenger.of(ctx).hideCurrentSnackBar();
                           },
                         ),
                       ],
