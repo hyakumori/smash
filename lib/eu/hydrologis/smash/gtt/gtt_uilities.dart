@@ -225,7 +225,7 @@ class GttUtilities {
 
     int trackerId = 3;
     int priorityId = 2;
-    String isPrivate = "false";
+    bool isPrivate = false;
     String startDate = "";
     String dueDate = "";
 
@@ -262,7 +262,7 @@ class GttUtilities {
               priorityId = int.parse(f["value"]);
               break;
             case "is_private":
-              isPrivate = f["value"];
+              isPrivate = f["value"] != null ? f["value"] == "true" : false;
               break;
             case "subject":
               subject = f["value"];
