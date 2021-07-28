@@ -15,7 +15,6 @@ import 'package:provider/provider.dart';
 import 'package:smash/eu/hydrologis/smash/gtt/gtt_uilities.dart';
 import 'package:smash/eu/hydrologis/smash/models/project_state.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/images.dart';
-import 'package:smash/eu/hydrologis/smash/project/objects/logs.dart';
 import 'package:smash/eu/hydrologis/smash/project/objects/notes.dart';
 import 'package:smash/eu/hydrologis/smash/project/project_database.dart';
 import 'package:smash/generated/l10n.dart';
@@ -145,11 +144,10 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     /**
      * now gather data stats from db
      */
-    var db = widget.projectDb;
-    _gpsLogCount = db.getGpsLogCount(true);
-    _simpleNotesCount = db.getSimpleNotesCount(true);
-    _formNotesCount = db.getFormNotesCount(true);
-    _imagesCount = db.getImagesCount(true);
+    _gpsLogCount = 0; //db.getGpsLogCount(true);
+    _simpleNotesCount = 0; //db.getSimpleNotesCount(true);
+    _formNotesCount = getGttFormCount();
+    _imagesCount = 0; //db.getImagesCount(true);
 
     var allCount =
         _gpsLogCount + _simpleNotesCount + _formNotesCount + _imagesCount;
@@ -455,6 +453,23 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     return retVal;
   }
 
+  int getGttFormCount() {
+    GeopaparazziProjectDb db = widget.projectDb;
+    int retVal = 0;
+
+    List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
+
+    for (Note note in formNotes) {
+      Map<String, dynamic> form = jsonDecode(note.form);
+      String sectionDesc = form["sectiondescription"];
+
+      if (sectionDesc != null && sectionDesc.contains("GTT")) {
+        retVal++;
+      }
+    }
+    return retVal;
+  }
+
   Future uploadProjectData(BuildContext context) async {
     GeopaparazziProjectDb db = widget.projectDb;
     bool noteUpdated = false;
@@ -463,11 +478,18 @@ class _GttExportWidgetState extends State<GttExportWidget> {
     _uploadTiles = [];
 
     /**
-     * Form Notes Upload
+     * GTT Form Notes Upload
      */
     List<Note> formNotes = db.getNotes(doSimple: false, onlyDirty: true);
 
     for (Note note in formNotes) {
+      Map<String, dynamic> form = jsonDecode(note.form);
+      String sectionDesc = form["sectiondescription"];
+
+      if (sectionDesc != null && !sectionDesc.contains("GTT")) {
+        continue;
+      }
+
       List<String> imageIds = FormUtilities.getImageIds(note.form);
 
       List<Map<String, dynamic>> uploads = await uploadImageData(imageIds, db);
@@ -484,7 +506,6 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         ///
         if (note.hasForm()) {
           Map<String, dynamic> noteForm = jsonDecode(note.form);
-          String sectionDesc = noteForm["sectiondescription"];
 
           try {
             Map<String, dynamic> retIss = ret["status_data"];
@@ -519,83 +540,6 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         SL.of(context).gttExport_formNotesUpload, //"Form Notes Upload"
         "$uploadCount ${SL.of(context).gttExport_formsUploadedToGttServer}")); //"Forms uploaded to GTT Server"
 
-    /**
-     * Simple Notes Upload
-     */
-    List<Note> simpleNotes = db.getNotes(doSimple: true, onlyDirty: true);
-    uploadCount = 0;
-
-    for (Note note in simpleNotes) {
-      List<String> imageIds = FormUtilities.getImageIds(note.form);
-
-      List<Map<String, dynamic>> uploads = await uploadImageData(imageIds, db);
-
-      Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createIssue(note, _selectedProj, uploads));
-
-      debugPrint("SimpleNote status_code: ${ret["status_code"]}, "
-          "status_message: ${ret["status_message"]}");
-
-      if (ret["status_code"] == 201 || ret["status_code"] == 204) {
-        uploadCount++;
-
-        note.isDirty = 0;
-        await db.updateNoteDirty(note.id, false);
-      }
-    }
-
-    /**
-     * Simple Note Image Upload
-     */
-
-    List<DbImage> imagesList = db.getImages(onlyDirty: true);
-    uploadCount = 0;
-
-    for (var image in imagesList) {
-      List<Map<String, dynamic>> uploads =
-          await uploadImageData(["${image.imageDataId}"], db);
-
-      Note note = new Note();
-      note.lat = image.lat;
-      note.lon = image.lon;
-      note.text = "Simple Note Image";
-      note.description = "POI";
-
-      Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createIssue(note, _selectedProj, uploads));
-
-      if (ret["status_code"] == 201) {
-        uploadCount++;
-
-        note.isDirty = 0;
-        await db.updateImageDirty(image.imageDataId, false);
-      }
-    }
-
-    _uploadTiles.add(GttUtilities.getResultTile(
-        SL.of(context).gttExport_simpleNotesUpload, //"Simple Notes Upload "
-        "$uploadCount ${SL.of(context).gttExport_notesUploadedToGttServer}")); //"Notes uploaded to GTT Server"
-
-    /**
-     * GPS Log Upload
-     */
-
-    List<Log> logsList = db.getLogs(onlyDirty: true);
-
-    for (Log log in logsList) {
-      List<LogDataPoint> points = db.getLogDataPointsById(log.id);
-
-      Map<String, dynamic> ret = await GttUtilities.postIssue(
-          GttUtilities.createLogIssue(log, points, _selectedProj));
-
-      if (ret["status_code"] == 201) {
-        uploadCount++;
-
-        log.isDirty = 0;
-        await db.updateLogDirty(log.id, false);
-      }
-    }
-
     ///
     /// Updating Project Screen if Note has been updated
     ///
@@ -605,10 +549,6 @@ class _GttExportWidgetState extends State<GttExportWidget> {
 
       projectState.reloadProject(context);
     }
-
-    _uploadTiles.add(GttUtilities.getResultTile(
-        SL.of(context).gttExport_simpleLogsUpload, //"Simple Logs Upload "
-        "$uploadCount ${SL.of(context).gttExport_logsUploadedToGttServer}"));
 
     setState(() {
       _status = 2;
