@@ -300,7 +300,6 @@ class GttUtilities {
     bool issueExists = false;
 
     for (Map<String, dynamic> f in formItems) {
-      debugPrint("key: ${f["key"]}");
       if (f["key"] == "issue_id") {
         issueExists = true;
       }
@@ -310,7 +309,7 @@ class GttUtilities {
       Map<String, dynamic> map = {
         "key": "issue_id",
         "label": "",
-        "value": issueId,
+        "value": "$issueId",
         "values": null,
         "type": "hidden",
         "mandatory": "yes",
@@ -347,11 +346,6 @@ class GttUtilities {
 
       String sectionName = form["sectionname"];
       String sectionDesc = form["sectiondescription"];
-
-      if (form.containsKey("gtt_issue_id")) {
-        debugPrint("*** Saved Issue Number: ${form["gtt_issue_id"]} ***");
-        issueId = form["gtt_issue_id"];
-      }
 
       if (sectionName != null && sectionName.toLowerCase() == "text note") {
         for (var f in form["forms"][0]["formitems"]) {

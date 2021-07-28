@@ -504,29 +504,28 @@ class _GttExportWidgetState extends State<GttExportWidget> {
         ///
         /// Inserting GTT Issue ID into the Note Form
         ///
-        if (note.hasForm()) {
-          Map<String, dynamic> noteForm = jsonDecode(note.form);
+        Map<String, dynamic> noteForm = jsonDecode(note.form);
 
-          try {
-            Map<String, dynamic> retIss = ret["status_data"];
-            Map<String, dynamic> issue = retIss["issue"];
-            int issueId = issue["id"];
+        try {
+          Map<String, dynamic> retIss = ret["status_data"];
+          Map<String, dynamic> issue = retIss["issue"];
+          int issueId = issue["id"];
 
-            //noteForm.update("sectionname", (value) => "Issue #$issueId");
-            //noteForm.update("gttIssueNum", (value) => issueId,
-            //    ifAbsent: () => issueId);
-            //note.text = "Issue $issueId";
+          List<Map<String, dynamic>> fi = List<Map<String, dynamic>>.from(
+              noteForm["forms"][0]["formitems"]);
 
-            noteForm["gtt_issue_id"] = issueId;
+          List<Map<String, dynamic>> formItems =
+              GttUtilities.addIssueToFormItems(fi, issueId);
 
-            note.form = jsonEncode(noteForm);
-            note.timeStamp = DateTime.now().millisecondsSinceEpoch;
+          noteForm["forms"][0]["formitems"] = formItems;
 
-            await db.updateNote(note);
-            noteUpdated = true;
-          } catch (e) {
-            debugPrint("Error: ${e.toString()}");
-          }
+          note.form = jsonEncode(noteForm);
+          note.timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+          await db.updateNote(note);
+          noteUpdated = true;
+        } catch (e) {
+          debugPrint("Error: $e");
         }
       }
       if (ret["status_code"] == 201 || ret["status_code"] == 204) {
