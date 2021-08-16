@@ -39,8 +39,10 @@ void main() {
       EmailManualHandler(["feedback@geopaparazzi.eu"])
     ]);
 
-    Catcher(getMainWidget(),
-        debugConfig: debugOptions, releaseConfig: releaseOptions);
+    Catcher(
+        rootWidget: getMainWidget(),
+        debugConfig: debugOptions,
+        releaseConfig: releaseOptions);
   } else {
     runApp(getMainWidget());
   }
@@ -87,7 +89,7 @@ class SmashApp extends StatelessWidget {
       // ],
       // END PRE GEN
       navigatorKey: Catcher.navigatorKey,
-      title: APP_NAME,
+      title: Workspace.APP_NAME,
       //theme: Provider.of<ThemeState>(context).currentThemeData,
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -281,7 +283,7 @@ Future<String> handlePreferences(BuildContext context) async {
 
 Future<String> handleWorkspace(BuildContext context) async {
   try {
-    await Workspace.init();
+    await Workspace.init(doSafeMode: false);
     var directory = await Workspace.getConfigFolder();
     bool init = SLogger().init(directory.path); // init logger
     if (init) SMLogger().setSubLogger(SLogger());
@@ -315,8 +317,9 @@ Future<String> handleLocationPermission(BuildContext context) async {
 
 Future<String> handleStoragePermission(BuildContext context) async {
   if (!SmashPlatform.isDesktop()) {
-    var storagePermission =
-        await PermissionManager().add(PERMISSIONS.STORAGE).check(context);
+    var storagePermission = await PermissionManager()
+        .add(PERMISSIONS.MANAGEEXTSTORAGE) // TODO check this
+        .check(context);
     if (!storagePermission) {
       return SL.of(context).main_storagePermissionIsMandatoryToOpenSmash;
     }

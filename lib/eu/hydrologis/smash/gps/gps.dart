@@ -16,7 +16,7 @@ import 'package:background_locator/settings/ios_settings.dart';
 import 'package:background_locator/settings/locator_settings.dart';
 import 'package:dart_hydrologis_utils/dart_hydrologis_utils.dart';
 import 'package:geodesy/geodesy.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:smash/eu/hydrologis/smash/gps/filters.dart';
 import 'package:smash/eu/hydrologis/smash/gps/testlog.dart';
 import 'package:smash/eu/hydrologis/smash/models/gps_state.dart';
@@ -358,19 +358,23 @@ time: ${TimeUtilities.ISO8601_TS_FORMATTER.format(DateTime.fromMillisecondsSince
           double distanceMeterFiltered = currentLogStats[1] as double;
           int timestampDelta = currentLogStats[2] as int;
 
-          var timeStr = StringUtilities.formatDurationMillis(timestampDelta);
-          var distStr = StringUtilities.formatMeters(distanceMeter);
-          var distFilteredStr =
-              StringUtilities.formatMeters(distanceMeterFiltered);
+          if (distanceMeter != null &&
+              timestampDelta != null &&
+              distanceMeterFiltered != null) {
+            var timeStr = StringUtilities.formatDurationMillis(timestampDelta);
+            var distStr = StringUtilities.formatMeters(distanceMeter);
+            var distFilteredStr =
+                StringUtilities.formatMeters(distanceMeterFiltered);
 
-          if (timeStr != null) {
-            msg = "$timeStr, $distStr ($distFilteredStr)";
-            bigMsg = msg + "\n" + bigMsg;
+            if (timeStr != null) {
+              msg = "$timeStr, $distStr ($distFilteredStr)";
+              bigMsg = msg + "\n" + bigMsg;
+            }
           }
-        }
 
-        GPS.BackgroundLocator.updateNotificationText(
-            title: title, msg: msg, bigMsg: bigMsg);
+          GPS.BackgroundLocator.updateNotificationText(
+              title: title, msg: msg, bigMsg: bigMsg);
+        }
       }
     });
     // init platform state
