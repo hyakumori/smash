@@ -180,11 +180,10 @@ class DataLoaderUtilities {
       }
 
       String text = note.text;
-      if (note.hasForm()) {
-        text = FormUtilities.getFormItemLabel(note.form, note.text);
-      }
       if (notesMode == SmashPreferencesKeys.NOTESVIEWMODES[1]) {
         text = null; // so the text of the icon is not made in MarkerIcon
+      } else if (note.hasForm()) {
+        text = FormUtilities.getFormItemLabel(note.form, note.text);
       }
 
       tmp.add(Marker(
@@ -212,6 +211,7 @@ class DataLoaderUtilities {
                   halfWidth = 100;
                 }
               }
+              ScaffoldMessenger.of(ctx).clearSnackBars();
               ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
                 behavior: SnackBarBehavior.floating,
                 width: halfWidth,
@@ -431,6 +431,7 @@ class DataLoaderUtilities {
             child: GestureDetector(
           onTap: () {
             var thumb = db.getThumbnail(image.imageDataId);
+            ScaffoldMessenger.of(ctx).clearSnackBars();
             ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               width: sizeSnackBar ? halfWidth : null,
               behavior: SnackBarBehavior.floating,
@@ -635,6 +636,9 @@ class DataLoaderUtilities {
 
         var ts = map.get(LOGSDATA_COLUMN_TS)?.toInt();
         var acc = map.get(LOGSDATA_COLUMN_ACCURACY);
+        var latF = map.get(LOGSDATA_COLUMN_LAT_FILTERED);
+        doOrig = doOrig || latF == null;
+        doFiltered = doFiltered && latF != null;
         if (doOrig) {
           var lat = map.get(LOGSDATA_COLUMN_LAT);
           var lon = map.get(LOGSDATA_COLUMN_LON);
@@ -652,20 +656,18 @@ class DataLoaderUtilities {
         }
         if (doFiltered) {
           var latF = map.get(LOGSDATA_COLUMN_LAT_FILTERED);
-          if (latF != null) {
-            var lonF = map.get(LOGSDATA_COLUMN_LON_FILTERED);
-            var speed = 0.0;
-            if (prevTs != null) {
-              var distanceMeters = CoordinateUtilities.getDistance(
-                  LatLng(latF, lonF), prevLatLngFiltered);
-              var deltaTs = (ts - prevTs) / 1000;
-              speed = distanceMeters / deltaTs;
-            }
-            var coordsListF = log[3];
-            var ll = LatLngExt(latF, lonF, altim, -1, speed, ts, acc);
-            coordsListF.add(ll);
-            prevLatLngFiltered = ll;
+          var lonF = map.get(LOGSDATA_COLUMN_LON_FILTERED);
+          var speed = 0.0;
+          if (prevTs != null) {
+            var distanceMeters = CoordinateUtilities.getDistance(
+                LatLng(latF, lonF), prevLatLngFiltered);
+            var deltaTs = (ts - prevTs) / 1000;
+            speed = distanceMeters / deltaTs;
           }
+          var coordsListF = log[3];
+          var ll = LatLngExt(latF, lonF, altim, -1, speed, ts, acc);
+          coordsListF.add(ll);
+          prevLatLngFiltered = ll;
         }
         prevTs = ts;
       }

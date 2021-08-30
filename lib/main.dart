@@ -12,6 +12,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:permission_handler/permission_handler.dart';
 import 'package:proj4dart/proj4dart.dart';
 import 'package:provider/provider.dart';
+import 'package:smash/eu/hydrologis/smash/gps/gps.dart';
 import 'package:smash/eu/hydrologis/smash/maps/layers/core/layermanager.dart';
 import 'package:smash/eu/hydrologis/smash/models/gps_state.dart';
 import 'package:smash/eu/hydrologis/smash/models/map_state.dart';
@@ -226,8 +227,21 @@ Future<String> handleLayers(BuildContext context) async {
     var layerManager = LayerManager();
     await layerManager.initialize(context);
   } on Exception catch (e, s) {
-    var msg = "Error while loading layers.";
-    return logMsg(msg, e, s);
+    try {
+      var msg = "Error while loading layers.";
+      return logMsg(msg, e, s);
+    } on Exception catch (e, s) {
+      var eMsg = e.toString();
+      if (eMsg != null &&
+          eMsg.toLowerCase().contains("attempt to write a readonly database")) {
+        return "Unable to access the filesystem in write mode. This seems like a permission problem. Check your configurations.";
+      }
+      if (e != null) {
+        return e.toString();
+      } else if (s != null) {
+        return s.toString();
+      }
+    }
   }
   return null;
 }
@@ -274,6 +288,8 @@ Future<String> handlePreferences(BuildContext context) async {
     if (pos != null) {
       mapState.init(Coordinate(pos[0], pos[1]), pos[2]);
     }
+
+    await GpPreferences().setBoolean(GpsHandler.GPS_FORCED_OFF_KEY, false);
     return null;
   } on Exception catch (e, s) {
     var msg = "Error while reading preferences.";
@@ -287,6 +303,20 @@ Future<String> handleWorkspace(BuildContext context) async {
     var directory = await Workspace.getConfigFolder();
     bool init = SLogger().init(directory.path); // init logger
     if (init) SMLogger().setSubLogger(SLogger());
+
+    // handle issues with Android 11 not taking the
+    if (directory.path
+        .toLowerCase()
+        .contains("android/data/eu.hydrologis.smash")) {
+      // warn user the first time that the location of the files is in the android path
+      var shownAlready =
+          GpPreferences().getBooleanSync("SHOWN_FS_MOVED_WARNING", false);
+      if (!shownAlready) {
+        await SmashDialogs.showWarningDialog(
+            context, SL().main_StorageIsInternalWarning);
+        await GpPreferences().setBoolean("SHOWN_FS_MOVED_WARNING", true);
+      }
+    }
     return null;
   } on Exception catch (e, s) {
     var msg = "Error during workspace initialization.";
@@ -318,7 +348,8 @@ Future<String> handleLocationPermission(BuildContext context) async {
 Future<String> handleStoragePermission(BuildContext context) async {
   if (!SmashPlatform.isDesktop()) {
     var storagePermission = await PermissionManager()
-        .add(PERMISSIONS.MANAGEEXTSTORAGE) // TODO check this
+        .add(PERMISSIONS.STORAGE)
+        // .add(PERMISSIONS.MANAGEEXTSTORAGE) // TODO check this
         .check(context);
     if (!storagePermission) {
       return SL.of(context).main_storagePermissionIsMandatoryToOpenSmash;

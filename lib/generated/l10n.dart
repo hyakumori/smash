@@ -215,6 +215,16 @@ class SL {
     );
   }
 
+  /// `Please read carefully!\nDue to Android > 11 restrictions, the SMASH project folder needs to be placed inside the\n\nAndroid/data/eu.hydrologis.smash/files/smash\n\nfolder in your storage in order to be properly used. The only thing you have to pay attention to is that when the app is uninstalled, the system removes that folder.\n\nIn that case make sure you save your data first!\n\nWe will be working on a solution in the meanwhile.`
+  String get main_StorageIsInternalWarning {
+    return Intl.message(
+      'Please read carefully!\nDue to Android > 11 restrictions, the SMASH project folder needs to be placed inside the\n\nAndroid/data/eu.hydrologis.smash/files/smash\n\nfolder in your storage in order to be properly used. The only thing you have to pay attention to is that when the app is uninstalled, the system removes that folder.\n\nIn that case make sure you save your data first!\n\nWe will be working on a solution in the meanwhile.',
+      name: 'main_StorageIsInternalWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Location permission is mandatory to open SMASH.`
   String get main_locationPermissionIsMandatoryToOpenSmash {
     return Intl.message(
@@ -590,6 +600,36 @@ class SL {
     return Intl.message(
       'Export project to KML',
       name: 'exportWidget_exportToKml',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Images exported`
+  String get exportWidget_imagesToFolderExported {
+    return Intl.message(
+      'Images exported',
+      name: 'exportWidget_imagesToFolderExported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export project images to folder`
+  String get exportWidget_exportImagesToFolder {
+    return Intl.message(
+      'Export project images to folder',
+      name: 'exportWidget_exportImagesToFolder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Images`
+  String get exportWidget_exportImagesToFolderTitle {
+    return Intl.message(
+      'Images',
+      name: 'exportWidget_exportImagesToFolderTitle',
       desc: '',
       args: [],
     );
