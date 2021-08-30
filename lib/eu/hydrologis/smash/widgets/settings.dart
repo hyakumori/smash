@@ -173,7 +173,7 @@ class _SettingsWidgetState extends State<SettingsWidget> {
     final ListTile gttSettingTile = ListTile(
         leading: Icon(
           GssSettingsState.iconData,
-          color: Colors.red, //SmashColors.mainDecorations,
+          color: SmashColors.mainDecorations,
         ),
         title: SmashUI.normalText("GTT"),
         subtitle: Text(SL

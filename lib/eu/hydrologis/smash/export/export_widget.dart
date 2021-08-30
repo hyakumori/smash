@@ -280,7 +280,7 @@ class _ExportWidgetState extends State<ExportWidget> {
         ListTile(
             leading: Icon(
               MdiIcons.cloudLock,
-              color: Colors.red, //SmashColors.mainDecorations,
+              color: SmashColors.mainDecorations,
             ),
             title: Text("GTT"),
             subtitle: Text(

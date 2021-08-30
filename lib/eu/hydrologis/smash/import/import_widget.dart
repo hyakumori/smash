@@ -46,7 +46,7 @@ class _ImportWidgetState extends State<ImportWidget> {
           ListTile(
             leading: Icon(
               MdiIcons.cloudLock,
-              color: Colors.red, //SmashColors.mainDecorations,
+              color: SmashColors.mainDecorations,
             ),
             title: Text("GTT"),
             subtitle: Text(SL
