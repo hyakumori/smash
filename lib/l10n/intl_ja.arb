@@ -22,6 +22,7 @@
   "main_loadingLayersList": "レイヤーリストを読み込んでいます...",
   "main_layersListLoaded": "レイヤーリストが読み込まれました。",
   "main_locationBackgroundWarning": "このアプリはデバイスに位置データを収集して,アプリがバックグラウンドに配置されている場合でもgpsログの記録を有効にします。データは共有されず,デバイスにローカルにのみ保存されます。\n\n許可を与えない場合次のダイアログのバックグラウンドロケーションサービスでは,SMASHを使用してデータを収集できますが,そのためにはアプリを常にフォアグラウンドに保つ必要があります。\n ",
+  "main_StorageIsInternalWarning": "ご注意ください！ Android 11の制限により、SMASHのプロジェクトフォルダは、利用しているストレージの Android/data/eu.hydrologis.smash/files/smash フォルダに配置される必要があります。そのため、アプリをアンインストールする際に、システムはそのフォルダを削除してしまいます。データの保全が必要な場合、アプリをアンインストールする前にデータを保存してください！ 現在、この問題を解決するための作業を実施中です。",
   "main_locationPermissionIsMandatoryToOpenSmash": "SMASHを開くには,場所のアクセス許可が必須です。",
   "main_storagePermissionIsMandatoryToOpenSmash": "SMASHを開くには,ストレージ権限が必須です。",
   "main_anErrorOccurredTapToView": "エラーが発生しました。タップして表示します。",
@@ -73,6 +74,9 @@
   "exportWidget_exportToGpx": "プロジェクトをGPXにエクスポート",
   "exportWidget_kmlExported": "KMLエクスポート",
   "exportWidget_exportToKml": "プロジェクトをKMLにエクスポート",
+  "exportWidget_imagesToFolderExported": "画像がエクスポートされました",
+  "exportWidget_exportImagesToFolder": "プロジェクト画像をフォルダにエクスポート",
+  "exportWidget_exportImagesToFolderTitle": "画像",
   "exportWidget_geopackageExported": "ジオパッケージがエクスポートされました",
   "exportWidget_exportToGeopackage": "プロジェクトをGeopackageにエクスポート",
   "exportWidget_exportToGSS": "Geopaparazzi Survey Serverにエクスポート",
@@ -351,9 +355,9 @@
   "@data_loader": {
     "context": "smash/project/data_loader.dart"
   },
-  "dataLoader_note": "note",
+  "dataLoader_note": "ノート",
   "dataLoader_Note": "注",
-  "dataLoader_hasForm": "Has Form",
+  "dataLoader_hasForm": "フォームあり",
   "dataLoader_POI": "POI",
   "dataLoader_savingImageToDB": "画像をdbに保存しています...",
   "dataLoader_removeNote": "メモを削除",
@@ -362,7 +366,7 @@
   "dataLoader_longitude": "経度",
   "dataLoader_latitude": "緯度",
   "dataLoader_altitude": "高度",
-  "dataLoader_timestamp": "Timestamp",
+  "dataLoader_timestamp": "タイムスタンプ",
   "dataLoader_removeImage": "画像の削除",
   "dataLoader_areYouSureRemoveImage": "画像を削除してもよろしいですか？",
 
@@ -679,6 +683,22 @@
   "network_uploading": "アップロード",
   "network_pleaseWait": "お待ちください...",
   "network_permissionOnServerDenied": "サーバーへのアクセスが拒否されました。",
-  "network_couldNotConnectToServer": "サーバーに接続できませんでした。オンラインですか？アドレスを確認してください。"
+  "network_couldNotConnectToServer": "サーバーに接続できませんでした。オンラインですか？アドレスを確認してください。",
+
+  "@form_sketch" : {
+    "context": "form_sketch.dart"
+  },
+  "form_sketch_backColor": "背景色",
+  "form_sketch_clear": "クリア",
+  "form_sketch_enableDrawing": "描画を有効にする",
+  "form_sketch_enableEraser": "消しゴムを有効にする",
+  "form_sketch_newSketch": "新しいスケッチ",
+  "form_sketch_noUndo": "元に戻すものはありません",
+  "form_sketch_pickColor": "色を選ぶ",
+  "form_sketch_save": "保存",
+  "form_sketch_sketcher": "スケッチャー",
+  "form_sketch_strokeColor": "ストロークの色",
+  "form_sketch_undo": "取り消し",
+  "form_smash_cantSaveImageDb": "データベースに画像を保存できませんでした。"
 
 }
