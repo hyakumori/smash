@@ -1889,7 +1889,7 @@ class _DebugLogViewerState extends State<DebugLogViewer> {
   };
   var levelToIcon = {
     "Level.verbose": MdiIcons.accountVoice,
-    "Level.debug": MdiIcons.androidDebugBridge,
+    "Level.debug": MdiIcons.ladybug,
     "Level.info": MdiIcons.information,
     "Level.warning": MdiIcons.alertOutline,
     "Level.error": MdiIcons.flashAlert,
@@ -1940,9 +1940,8 @@ class _DebugLogViewerState extends State<DebugLogViewer> {
         title: Text(SL.of(context).settings_debugLogView), //"Debug Log View"
         actions: [
           IconButton(
-              icon: Icon(isViewingErrors
-                  ? MdiIcons.androidDebugBridge
-                  : MdiIcons.flashAlert),
+              icon: Icon(
+                  isViewingErrors ? MdiIcons.ladybug : MdiIcons.flashAlert),
               tooltip: isViewingErrors
                   ? SL
                       .of(context)
