@@ -1,4 +1,5 @@
 {
+  "@@locale": "fr",
   "form_sketch_strokeColor": "Couleur du trait",
   "@form_sketch_strokeColor": {},
   "network_toTheDeviceTakeTime": "sur l’appareil ? Ceci peut prendre un certain temps.",

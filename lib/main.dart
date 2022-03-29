@@ -76,6 +76,7 @@ class SmashApp extends StatelessWidget {
         SL.delegate,
         IEL.delegate,
         GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: SL.delegate.supportedLocales,

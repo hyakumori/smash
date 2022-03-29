@@ -1,4 +1,5 @@
 {
+  "@@locale": "nb_NO",
   "main_welcome": "Velkommen til SMASH.",
   "@main_welcome": {},
   "main_loadingFences": "Laster inn gjerder …",

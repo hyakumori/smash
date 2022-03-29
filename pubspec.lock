@@ -126,7 +126,7 @@ packages:
       name: dart_hydrologis_db
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.0+1"
+    version: "0.7.2"
   dart_hydrologis_utils:
     dependency: "direct main"
     description:
@@ -285,7 +285,7 @@ packages:
       name: flutter_geopackage
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.0"
+    version: "0.5.1"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -937,18 +937,16 @@ packages:
   smash_import_export_plugins:
     dependency: "direct main"
     description:
-      path: "."
-      ref: bc8f5ee
-      resolved-ref: bc8f5eed6d94c6487fcc3f381422a2ec89e0a9b1
-      url: "https://github.com/geopaparazzi/smash_import_export_plugins.git"
-    source: git
+      path: "../smash_import_export_plugins"
+      relative: true
+    source: path
     version: "0.0.1"
   smashlibs:
     dependency: "direct main"
     description:
       path: "."
-      ref: eb2f0e6
-      resolved-ref: eb2f0e6ab8fce5ee29983db8d7d61c75074e3eca
+      ref: "879a910"
+      resolved-ref: "879a9103c1ba722b074d783321e1cc1c89b46dfe"
       url: "https://github.com/moovida/smashlibs.git"
     source: git
     version: "1.0.0"
@@ -965,7 +963,7 @@ packages:
       name: sqlite3
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.2"
+    version: "1.5.1"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:

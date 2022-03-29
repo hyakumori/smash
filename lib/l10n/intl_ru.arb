@@ -1,4 +1,5 @@
 {
+  "@@locale": "ru",
   "main_welcome": "Добро пожаловать в SMASH!",
   "@main_welcome": {},
   "mainviewUtils_database": "База данных",
