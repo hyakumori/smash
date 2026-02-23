@@ -461,6 +461,29 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
   }
 
   @override
+  List<Log> getChildLogs(int parentId) {
+    String logsQuery = '''
+        select $LOGS_COLUMN_ID, $LOGS_COLUMN_STARTTS, $LOGS_COLUMN_ENDTS, $LOGS_COLUMN_TEXT, $LOGS_COLUMN_ISDIRTY, $LOGS_COLUMN_LENGTHM
+        from $TABLE_GPSLOGS
+        where $LOGS_COLUMN_PARENTLOGID=$parentId
+    ''';
+
+    var resLogs = select(logsQuery);
+    List<Log> logs = [];
+    resLogs.forEach((QueryResultRow map) {
+      Log log = Log()
+        ..id = map.get(LOGS_COLUMN_ID)
+        ..startTime = map.get(LOGS_COLUMN_STARTTS)
+        ..endTime = map.get(LOGS_COLUMN_ENDTS)
+        ..text = map.get(LOGS_COLUMN_TEXT)
+        ..isDirty = map.get(LOGS_COLUMN_ISDIRTY)
+        ..lengthm = map.get(LOGS_COLUMN_LENGTHM);
+      logs.add(log);
+    });
+    return logs;
+  }
+
+  @override
   List<LogDataPoint> getLogDataPoints(int logId) {
     String logDataQuery = """
             select $LOGSDATA_COLUMN_ID, $LOGSDATA_COLUMN_LAT, $LOGSDATA_COLUMN_LON, 

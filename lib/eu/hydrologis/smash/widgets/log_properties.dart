@@ -91,6 +91,12 @@ class LogPropertiesWidgetState extends State<LogPropertiesWidget> {
               }
             }
 
+            // check for childen and update them as well
+            projectState.projectDb!.getChildLogs(_logItem.id!).forEach((child) {
+              projectState.projectDb!.updateGpsLogStyle(
+                  child.id!, _logItem.color!, _logItem.width!);
+            });
+
             projectState.projectDb!.updateGpsLogStyle(
                 _logItem.id!, _logItem.color!, _logItem.width!);
             projectState.reloadProject(context);
