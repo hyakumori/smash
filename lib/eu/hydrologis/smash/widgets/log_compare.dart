@@ -9,6 +9,7 @@ import 'package:dart_hydrologis_utils/dart_hydrologis_utils.dart'
 import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:smash/eu/hydrologis/smash/project/project_database.dart';
+import 'package:smash/generated/l10n.dart';
 import 'package:smashlibs/smashlibs.dart';
 import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
@@ -121,7 +122,7 @@ class _LogCompareState extends State<LogCompare> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Log compare'),
+            title: Text(SL.of(context).logCompare_title),
             actions: [
               if (isLoading)
                 const Padding(
@@ -231,10 +232,10 @@ class _LogCompareState extends State<LogCompare> {
             child: TabBar(
               labelColor: SmashColors.mainDecorationsDarker,
               unselectedLabelColor: SmashColors.mainDecorations,
-              tabs: const [
-                Tab(text: 'Log 1'),
-                Tab(text: 'Log 2'),
-                Tab(text: 'Chart'),
+              tabs: [
+                Tab(text: SL.of(context).logCompare_log1),
+                Tab(text: SL.of(context).logCompare_log2),
+                Tab(text: SL.of(context).logCompare_chartTab),
               ],
             ),
           ),
@@ -360,14 +361,16 @@ class _SelectorPane extends StatelessWidget {
           Row(
             children: [
               SmashUI.normalText(
-                pane.isInLogsMode ? 'Select log' : 'Select project',
+                pane.isInLogsMode
+                    ? SL.of(context).logCompare_selectLog
+                    : SL.of(context).logCompare_selectProject,
                 bold: true,
                 color: _paneColor,
               ),
               const Spacer(),
               if (pane.isInLogsMode)
                 Tooltip(
-                  message: 'Back to projects',
+                  message: SL.of(context).logCompare_backToProjects,
                   child: IconButton(
                     onPressed: onBackToProjects,
                     icon: Icon(Icons.arrow_back,
@@ -382,8 +385,9 @@ class _SelectorPane extends StatelessWidget {
             focusNode: fn,
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText:
-                  pane.isInLogsMode ? 'Filter logs...' : 'Filter projects...',
+              hintText: pane.isInLogsMode
+                  ? SL.of(context).logCompare_filterLogs
+                  : SL.of(context).logCompare_filterProjects,
               isDense: true,
               border: OutlineInputBorder(
                 borderSide: BorderSide(color: _paneColor, width: 2),
@@ -397,7 +401,7 @@ class _SelectorPane extends StatelessWidget {
               suffixIcon: ctrl.text.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Clear filter',
+                      tooltip: SL.of(context).logCompare_clearFilter,
                       icon: const Icon(Icons.close),
                       onPressed: () {
                         ctrl.clear();
@@ -426,10 +430,10 @@ class _SelectorPane extends StatelessWidget {
                 builder: (context, value, _) {
                   if (pane.isInLogsMode) {
                     final logs = _filterLogs(pane.logs, value.text);
-                    return _buildLogsList(logs);
+                    return _buildLogsList(context, logs);
                   } else {
                     final names = _filterProjects(projectNames, value.text);
-                    return _buildProjectsList(names);
+                    return _buildProjectsList(context, names);
                   }
                 },
               ),
@@ -440,11 +444,11 @@ class _SelectorPane extends StatelessWidget {
     );
   }
 
-  Widget _buildProjectsList(List<String> names) {
+  Widget _buildProjectsList(BuildContext context, List<String> names) {
     if (names.isEmpty) {
       return Center(
         child: SmashUI.titleText(
-          'No projects',
+          SL.of(context).logCompare_noProjects,
           color: SmashColors.mainDecorationsDarker,
           bold: true,
         ),
@@ -476,15 +480,15 @@ class _SelectorPane extends StatelessWidget {
     );
   }
 
-  Widget _buildLogsList(List<Log> logs) {
+  Widget _buildLogsList(BuildContext context, List<Log> logs) {
     if (pane.selectedProjectName == null) {
-      return const Center(child: Text('Select a project'));
+      return Center(child: Text(SL.of(context).logCompare_selectProjectFirst));
     }
     if (pane.logs.isEmpty) {
-      return const Center(child: Text('No logs (or still loading)'));
+      return Center(child: Text(SL.of(context).logCompare_noLogsOrLoading));
     }
     if (logs.isEmpty) {
-      return const Center(child: Text('No logs match the filter'));
+      return Center(child: Text(SL.of(context).logCompare_noLogsMatchFilter));
     }
 
     return ListView.builder(
@@ -550,8 +554,9 @@ class _ChartArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sl = SL.of(context);
     if (logA == null && logB == null) {
-      return const Center(child: Text('Select at least one log'));
+      return Center(child: Text(sl.logCompare_selectAtLeastOneLog));
     }
     List<List<LogDataPoint>> logDataA = const [];
     List<List<LogDataPoint>> logDataB = const [];
@@ -593,8 +598,8 @@ class _ChartArea extends StatelessWidget {
                       ),
                     ),
                   if (logA != null && logB != null)
-                    const Text(
-                      'vs.',
+                    Text(
+                      sl.logCompare_vs,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -622,8 +627,8 @@ class _ChartArea extends StatelessWidget {
                     child: LogCompareChartWithToggles(
                       redSegments: logDataA,
                       blueSegments: logDataB,
-                      redLabel: 'Log 1',
-                      blueLabel: 'Log 2',
+                      redLabel: sl.logCompare_log1,
+                      blueLabel: sl.logCompare_log2,
                       initialXAxis: CompareXAxis.distance,
                       initialYAxis: CompareYAxis.altitude,
                     ),
@@ -861,6 +866,7 @@ class LogCompareHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final sl = SL.of(context);
 
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
@@ -879,7 +885,7 @@ class LogCompareHeader extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('X:', style: theme.textTheme.labelLarge),
+            Text('${sl.logCompare_xAxis}:', style: theme.textTheme.labelLarge),
             const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [
@@ -890,14 +896,14 @@ class LogCompareHeader extends StatelessWidget {
                 onXAxisChanged(
                     idx == 0 ? CompareXAxis.distance : CompareXAxis.time);
               },
-              children: const [
+              children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Distance'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_distance),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Time'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_time),
                 ),
               ],
             ),
@@ -906,7 +912,7 @@ class LogCompareHeader extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Y:', style: theme.textTheme.labelLarge),
+            Text('${sl.logCompare_yAxis}:', style: theme.textTheme.labelLarge),
             const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [
@@ -917,14 +923,14 @@ class LogCompareHeader extends StatelessWidget {
                 final v = idx == 0 ? CompareYAxis.altitude : CompareYAxis.speed;
                 onYAxisChanged(v);
               },
-              children: const [
+              children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Altitude'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_altitude),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Speed'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_speed),
                 ),
               ],
             ),
@@ -1063,8 +1069,7 @@ class _LogCompareChartWithTogglesState
 
     if ((red.segments.isEmpty || !_redVisible) &&
         (blue.segments.isEmpty || !_blueVisible)) {
-      return const Center(
-          child: Text('No chartable data in the selected logs.'));
+      return Center(child: Text(SL.of(context).logCompare_noChartableData));
     }
 
     final hasRed = _redVisible && red.segments.isNotEmpty;
@@ -1113,17 +1118,22 @@ class _LogCompareChartWithTogglesState
       }
     }
 
-    String xTitle() =>
-        _xAxis == CompareXAxis.time ? 'Time [hh:mm]' : 'Distance [m]';
-    String xReadoutLabel() => _xAxis == CompareXAxis.time ? 'Time' : 'Distance';
+    String xTitle() => _xAxis == CompareXAxis.time
+        ? SL.of(context).logCompare_timeAxisTitle
+        : SL.of(context).logCompare_distanceAxisTitle;
+    String xReadoutLabel() => _xAxis == CompareXAxis.time
+        ? SL.of(context).logCompare_time
+        : SL.of(context).logCompare_distance;
     String yTitle() {
-      if (_yAxis == CompareYAxis.speed) return 'Speed [m/s]';
-      return 'Altitude [m]';
+      if (_yAxis == CompareYAxis.speed) {
+        return SL.of(context).logCompare_speedAxisTitle;
+      }
+      return SL.of(context).logCompare_altitudeAxisTitle;
     }
 
     String yReadoutLabel() {
-      if (_yAxis == CompareYAxis.speed) return 'Speed';
-      return 'Altitude';
+      if (_yAxis == CompareYAxis.speed) return SL.of(context).logCompare_speed;
+      return SL.of(context).logCompare_altitude;
     }
 
     String toIntTick(double v) => v.round().toString();
