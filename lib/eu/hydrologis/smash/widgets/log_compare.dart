@@ -31,7 +31,12 @@ class _LogCompareState extends State<LogCompare> {
 
   // tweak as you like
   static const double _wideBreakpoint = 900;
-  static const double _leftPaneWidth = 360;
+  static const double _initialLeftPaneWidth = 360;
+  static const double _minLeftPaneWidth = 260;
+  static const double _minChartPaneWidth = 320;
+  static const double _dividerWidth = 10;
+
+  double _leftPaneWidth = _initialLeftPaneWidth;
 
   @override
   void initState() {
@@ -136,7 +141,9 @@ class _LogCompareState extends State<LogCompare> {
               : LayoutBuilder(
                   builder: (context, constraints) {
                     final isWide = constraints.maxWidth >= _wideBreakpoint;
-                    return isWide ? _buildWide() : _buildNarrow();
+                    return isWide
+                        ? _buildWide(constraints.maxWidth)
+                        : _buildNarrow();
                   },
                 ),
         );
@@ -144,12 +151,17 @@ class _LogCompareState extends State<LogCompare> {
     );
   }
 
-  Widget _buildWide() {
+  Widget _buildWide(double totalWidth) {
     final allProjectNames = _projectDbsMap.keys.toList()..sort();
+    final maxLeftPaneWidth = math.max(
+        _minLeftPaneWidth, totalWidth - _minChartPaneWidth - _dividerWidth);
+    final leftPaneWidth =
+        _leftPaneWidth.clamp(_minLeftPaneWidth, maxLeftPaneWidth).toDouble();
+
     return Row(
       children: [
         SizedBox(
-          width: _leftPaneWidth,
+          width: leftPaneWidth,
           child: Column(
             children: [
               Expanded(
@@ -176,7 +188,26 @@ class _LogCompareState extends State<LogCompare> {
             ],
           ),
         ),
-        const VerticalDivider(width: 1),
+        MouseRegion(
+          cursor: SystemMouseCursors.resizeColumn,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragUpdate: (details) {
+              final next = (_leftPaneWidth + details.delta.dx)
+                  .clamp(_minLeftPaneWidth, maxLeftPaneWidth)
+                  .toDouble();
+              if (next != _leftPaneWidth) {
+                setState(() => _leftPaneWidth = next);
+              }
+            },
+            child: SizedBox(
+              width: _dividerWidth,
+              child: const Center(
+                child: VerticalDivider(width: 1, thickness: 1),
+              ),
+            ),
+          ),
+        ),
         Expanded(
           child: _ChartArea(
             logA: _top.selectedLog,
@@ -196,11 +227,13 @@ class _LogCompareState extends State<LogCompare> {
       length: 3,
       child: Column(
         children: [
-          const Material(
+          Material(
             child: TabBar(
-              tabs: [
-                Tab(text: 'RED'),
-                Tab(text: 'BLUE'),
+              labelColor: SmashColors.mainDecorationsDarker,
+              unselectedLabelColor: SmashColors.mainDecorations,
+              tabs: const [
+                Tab(text: 'Log 1'),
+                Tab(text: 'Log 2'),
                 Tab(text: 'Chart'),
               ],
             ),
@@ -293,6 +326,8 @@ class _SelectorPane extends StatelessWidget {
   final VoidCallback onBackToProjects;
   final void Function(Log log) onSelectLog;
 
+  Color get _paneColor => title == 'RED' ? Colors.red : Colors.blue;
+
   List<String> _filterProjects(List<String> all, String filter) {
     final f = filter.trim().toLowerCase();
     if (f.isEmpty) return all;
@@ -325,11 +360,9 @@ class _SelectorPane extends StatelessWidget {
           Row(
             children: [
               SmashUI.normalText(
-                pane.isInLogsMode
-                    ? 'Select log ($title)'
-                    : 'Select project ($title)',
+                pane.isInLogsMode ? 'Select log' : 'Select project',
                 bold: true,
-                color: SmashColors.mainDecorationsDarker,
+                color: _paneColor,
               ),
               const Spacer(),
               if (pane.isInLogsMode)
@@ -353,8 +386,13 @@ class _SelectorPane extends StatelessWidget {
                   pane.isInLogsMode ? 'Filter logs...' : 'Filter projects...',
               isDense: true,
               border: OutlineInputBorder(
-                borderSide: BorderSide(
-                    color: SmashColors.mainDecorationsDarker, width: 2),
+                borderSide: BorderSide(color: _paneColor, width: 2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _paneColor, width: 2),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: _paneColor, width: 2),
               ),
               suffixIcon: ctrl.text.isEmpty
                   ? null
@@ -380,7 +418,7 @@ class _SelectorPane extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: SmashColors.mainDecorationsDarker),
+                border: Border.all(color: _paneColor),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ValueListenableBuilder<TextEditingValue>(
@@ -453,6 +491,7 @@ class _SelectorPane extends StatelessWidget {
       itemCount: logs.length,
       itemBuilder: (context, idx) {
         final log = logs[idx];
+        final selectedColor = _paneColor;
         final label = (log.text == null || log.text!.trim().isEmpty)
             ? 'Log ${log.id}'
             : log.text!.trim();
@@ -461,19 +500,25 @@ class _SelectorPane extends StatelessWidget {
         return ListTile(
           dense: true,
           selected: selected,
-          leading: Icon(MdiIcons.vectorPolyline,
-              color: SmashColors.mainDecorationsDarker),
+          selectedTileColor: selectedColor.withValues(alpha: 0.08),
+          leading: Icon(
+            MdiIcons.vectorPolyline,
+            color: selected ? selectedColor : SmashColors.mainDecorationsDarker,
+          ),
           title: Tooltip(
             message: label,
             child: SmashUI.smallText(
               label,
               overflow: TextOverflow.ellipsis,
-              color: SmashColors.mainDecorationsDarker,
+              color:
+                  selected ? selectedColor : SmashColors.mainDecorationsDarker,
+              bold: selected,
             ),
           ),
           subtitle: SmashUI.smallText(
             'id: ${log.id}',
-            color: SmashColors.mainDecorationsDarker,
+            color: selected ? selectedColor : SmashColors.mainDecorationsDarker,
+            bold: selected,
           ),
           onTap: () => onSelectLog(log),
         );
@@ -577,7 +622,9 @@ class _ChartArea extends StatelessWidget {
                     child: LogCompareChartWithToggles(
                       redSegments: logDataA,
                       blueSegments: logDataB,
-                      initialXAxis: CompareXAxis.time,
+                      redLabel: 'Log 1',
+                      blueLabel: 'Log 2',
+                      initialXAxis: CompareXAxis.distance,
                       initialYAxis: CompareYAxis.altitude,
                     ),
                   ),
@@ -623,7 +670,7 @@ double _haversineMeters(double lat1, double lon1, double lat2, double lon2) {
 }
 
 /// Converts List<List<LogDataPoint>> (main + children) into
-/// multiple FlSpot series (one per segment) + global bounds.
+/// one continuous FlSpot series (children appended after parent) + global bounds.
 /// Dart 2 compatible.
 PreparedMulti prepareMultiSeries(
   List<List<LogDataPoint>> segments, {
@@ -637,7 +684,9 @@ PreparedMulti prepareMultiSeries(
     return PreparedMulti(const [], 0, 1, 0, 1);
   }
 
-  final outSegments = <List<FlSpot>>[];
+  final mergedSpots = <FlSpot>[];
+  var xOffset = 0.0;
+  const segmentJoinEps = 1e-6;
 
   double minX = double.infinity;
   double maxX = -double.infinity;
@@ -692,8 +741,8 @@ PreparedMulti prepareMultiSeries(
           prevKept = p;
           continue;
         }
-        // assuming epoch millis -> seconds from segment start
-        x = (p.ts! - startTs) / 1000.0;
+        // epoch millis -> minutes from segment start
+        x = (p.ts! - startTs) / 60000.0;
       } else {
         if (prevKept != null) {
           final d = _haversineMeters(
@@ -739,20 +788,24 @@ PreparedMulti prepareMultiSeries(
         continue;
       }
 
-      spots.add(FlSpot(x, y));
+      final mergedX = xOffset + x;
+      spots.add(FlSpot(mergedX, y));
 
-      if (x < minX) minX = x;
-      if (x > maxX) maxX = x;
+      if (mergedX < minX) minX = mergedX;
+      if (mergedX > maxX) maxX = mergedX;
       if (y < minY) minY = y;
       if (y > maxY) maxY = y;
 
       prevKept = p;
     }
 
-    if (spots.isNotEmpty) outSegments.add(spots);
+    if (spots.isNotEmpty) {
+      mergedSpots.addAll(spots);
+      xOffset = spots.last.x + segmentJoinEps;
+    }
   }
 
-  if (outSegments.isEmpty) {
+  if (mergedSpots.isEmpty) {
     return PreparedMulti(const [], 0, 1, 0, 1);
   }
 
@@ -761,7 +814,7 @@ PreparedMulti prepareMultiSeries(
   final pad = spanY == 0 ? (maxY.abs() * 0.1 + 1) : spanY * 0.06;
 
   return PreparedMulti(
-    outSegments,
+    [mergedSpots],
     minX.isFinite ? minX : 0,
     maxX.isFinite ? maxX : 1,
     (minY - pad).isFinite ? (minY - pad) : 0,
@@ -871,7 +924,7 @@ class LogCompareHeader extends StatelessWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Alt'),
+                  child: Text('Altitude'),
                 ),
               ],
             ),
@@ -972,8 +1025,8 @@ class LogCompareChartWithToggles extends StatefulWidget {
     required this.blueSegments,
     this.redLabel = 'RED',
     this.blueLabel = 'BLUE',
-    this.initialXAxis = CompareXAxis.time,
-    this.initialYAxis = CompareYAxis.speed,
+    this.initialXAxis = CompareXAxis.distance,
+    this.initialYAxis = CompareYAxis.altitude,
   }) : super(key: key);
 
   final List<List<LogDataPoint>> redSegments;
@@ -1058,7 +1111,7 @@ class _LogCompareChartWithTogglesState
     }
 
     String xTitle() =>
-        _xAxis == CompareXAxis.time ? 'Time (s)' : 'Distance (m)';
+        _xAxis == CompareXAxis.time ? 'Time (min)' : 'Distance (m)';
     String yTitle() {
       if (_yAxis == CompareYAxis.speed) return 'Speed (m/s)';
       return 'Altitude (m)';
