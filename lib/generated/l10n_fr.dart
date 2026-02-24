@@ -1071,6 +1071,33 @@ class SLFr extends SL {
   String get logCompare_altitudeAxisTitle => 'Altitude [m]';
 
   @override
+  String get logCompare_raw => 'Raw';
+
+  @override
+  String get logCompare_smoothed => 'Smoothed';
+
+  @override
+  String get logCompare_zoomIn => 'Zoom in';
+
+  @override
+  String get logCompare_zoomOut => 'Zoom out';
+
+  @override
+  String get logCompare_resetZoom => 'Reset zoom';
+
+  @override
+  String get logCompare_panUp => 'Pan up';
+
+  @override
+  String get logCompare_panLeft => 'Pan left';
+
+  @override
+  String get logCompare_panRight => 'Pan right';
+
+  @override
+  String get logCompare_panDown => 'Pan down';
+
+  @override
   String get noteList_simpleNotesList => 'Une simple liste de notes';
 
   @override

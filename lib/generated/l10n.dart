@@ -2081,6 +2081,60 @@ abstract class SL {
   /// **'Altitude [m]'**
   String get logCompare_altitudeAxisTitle;
 
+  /// No description provided for @logCompare_raw.
+  ///
+  /// In en, this message translates to:
+  /// **'Raw'**
+  String get logCompare_raw;
+
+  /// No description provided for @logCompare_smoothed.
+  ///
+  /// In en, this message translates to:
+  /// **'Smoothed'**
+  String get logCompare_smoothed;
+
+  /// No description provided for @logCompare_zoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in'**
+  String get logCompare_zoomIn;
+
+  /// No description provided for @logCompare_zoomOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom out'**
+  String get logCompare_zoomOut;
+
+  /// No description provided for @logCompare_resetZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset zoom'**
+  String get logCompare_resetZoom;
+
+  /// No description provided for @logCompare_panUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pan up'**
+  String get logCompare_panUp;
+
+  /// No description provided for @logCompare_panLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Pan left'**
+  String get logCompare_panLeft;
+
+  /// No description provided for @logCompare_panRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Pan right'**
+  String get logCompare_panRight;
+
+  /// No description provided for @logCompare_panDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Pan down'**
+  String get logCompare_panDown;
+
   /// No description provided for @noteList_simpleNotesList.
   ///
   /// In en, this message translates to:

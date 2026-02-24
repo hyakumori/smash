@@ -168,7 +168,7 @@ class _LogCompareState extends State<LogCompare> {
             children: [
               Expanded(
                 child: _SelectorPane(
-                  title: 'RED',
+                  paneColor: Colors.red,
                   pane: _top,
                   projectNames: allProjectNames,
                   onSelectProject: (name) => _enterLogsMode(_top, name),
@@ -179,7 +179,7 @@ class _LogCompareState extends State<LogCompare> {
               const Divider(height: 1),
               Expanded(
                 child: _SelectorPane(
-                  title: 'BLUE',
+                  paneColor: Colors.blue,
                   pane: _bottom,
                   projectNames: allProjectNames,
                   onSelectProject: (name) => _enterLogsMode(_bottom, name),
@@ -244,7 +244,7 @@ class _LogCompareState extends State<LogCompare> {
             child: TabBarView(
               children: [
                 _SelectorPane(
-                  title: 'RED',
+                  paneColor: Colors.red,
                   pane: _top,
                   projectNames: allProjectNames,
                   onSelectProject: (name) => _enterLogsMode(_top, name),
@@ -252,7 +252,7 @@ class _LogCompareState extends State<LogCompare> {
                   onSelectLog: (log) => _selectLog(_top, log),
                 ),
                 _SelectorPane(
-                  title: 'BLUE',
+                  paneColor: Colors.blue,
                   pane: _bottom,
                   projectNames: allProjectNames,
                   onSelectProject: (name) => _enterLogsMode(_bottom, name),
@@ -312,7 +312,7 @@ class _PaneState {
 
 class _SelectorPane extends StatelessWidget {
   const _SelectorPane({
-    required this.title,
+    required this.paneColor,
     required this.pane,
     required this.projectNames, // full list (sorted)
     required this.onSelectProject,
@@ -320,15 +320,13 @@ class _SelectorPane extends StatelessWidget {
     required this.onSelectLog,
   });
 
-  final String title;
+  final Color paneColor;
   final _PaneState pane;
 
   final List<String> projectNames;
   final void Function(String projectName) onSelectProject;
   final VoidCallback onBackToProjects;
   final void Function(Log log) onSelectLog;
-
-  Color get _paneColor => title == 'RED' ? Colors.red : Colors.blue;
 
   List<String> _filterProjects(List<String> all, String filter) {
     final f = filter.trim().toLowerCase();
@@ -366,7 +364,7 @@ class _SelectorPane extends StatelessWidget {
                     ? SL.of(context).logCompare_selectLog
                     : SL.of(context).logCompare_selectProject,
                 bold: true,
-                color: _paneColor,
+                color: paneColor,
               ),
               const Spacer(),
               if (pane.isInLogsMode)
@@ -391,13 +389,13 @@ class _SelectorPane extends StatelessWidget {
                   : SL.of(context).logCompare_filterProjects,
               isDense: true,
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: _paneColor, width: 2),
+                borderSide: BorderSide(color: paneColor, width: 2),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _paneColor, width: 2),
+                borderSide: BorderSide(color: paneColor, width: 2),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: _paneColor, width: 2),
+                borderSide: BorderSide(color: paneColor, width: 2),
               ),
               suffixIcon: ctrl.text.isEmpty
                   ? null
@@ -423,7 +421,7 @@ class _SelectorPane extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                border: Border.all(color: _paneColor),
+                border: Border.all(color: paneColor),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ValueListenableBuilder<TextEditingValue>(
@@ -496,9 +494,10 @@ class _SelectorPane extends StatelessWidget {
       itemCount: logs.length,
       itemBuilder: (context, idx) {
         final log = logs[idx];
-        final selectedColor = _paneColor;
+        final selectedColor = paneColor;
+        final sl = SL.of(context);
         final label = (log.text == null || log.text!.trim().isEmpty)
-            ? 'Log ${log.id}'
+            ? sl.logCompare_logWithId(log.id ?? '')
             : log.text!.trim();
         final selected = pane.selectedLog?.id == log.id;
 
@@ -521,7 +520,7 @@ class _SelectorPane extends StatelessWidget {
             ),
           ),
           subtitle: SmashUI.smallText(
-            'id: ${log.id}',
+            sl.logCompare_idWithValue(log.id ?? ''),
             color: selected ? selectedColor : SmashColors.mainDecorationsDarker,
             bold: selected,
           ),
@@ -547,9 +546,11 @@ class _ChartArea extends StatelessWidget {
   final String? projectB;
   final Map<String, ProjectDb> projectDbsMap;
 
-  String _logLabel(Log log) {
+  String _logLabel(BuildContext context, Log log) {
     final text = log.text?.trim();
-    if (text == null || text.isEmpty) return 'Log ${log.id}';
+    if (text == null || text.isEmpty) {
+      return SL.of(context).logCompare_logWithId(log.id ?? '');
+    }
     return text;
   }
 
@@ -591,7 +592,7 @@ class _ChartArea extends StatelessWidget {
                 children: [
                   if (logA != null)
                     Text(
-                      _logLabel(logA!),
+                      _logLabel(context, logA!),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -608,7 +609,7 @@ class _ChartArea extends StatelessWidget {
                     ),
                   if (logB != null)
                     Text(
-                      _logLabel(logB!),
+                      _logLabel(context, logB!),
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -956,14 +957,14 @@ class LogCompareHeader extends StatelessWidget {
                 onSpeedModeChanged(
                     idx == 0 ? SpeedSeriesMode.raw : SpeedSeriesMode.smoothed);
               },
-              children: const [
+              children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Raw'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_raw),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Smoothed'),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(sl.logCompare_smoothed),
                 ),
               ],
             ),
@@ -979,8 +980,8 @@ class LogCompareChartWithToggles extends StatefulWidget {
     Key? key,
     required this.redSegments,
     required this.blueSegments,
-    this.redLabel = 'RED',
-    this.blueLabel = 'BLUE',
+    required this.redLabel,
+    required this.blueLabel,
     this.initialXAxis = CompareXAxis.distance,
     this.initialYAxis = CompareYAxis.altitude,
   }) : super(key: key);
@@ -1510,7 +1511,7 @@ class _LogCompareChartWithTogglesState
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              tooltip: 'Zoom in',
+                              tooltip: SL.of(context).logCompare_zoomIn,
                               icon: const Icon(Icons.zoom_in),
                               onPressed: () => _zoom(
                                 factor: 0.7,
@@ -1521,7 +1522,7 @@ class _LogCompareChartWithTogglesState
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Zoom out',
+                              tooltip: SL.of(context).logCompare_zoomOut,
                               icon: const Icon(Icons.zoom_out),
                               onPressed: () => _zoom(
                                 factor: 1.4,
@@ -1532,14 +1533,14 @@ class _LogCompareChartWithTogglesState
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Reset zoom',
+                              tooltip: SL.of(context).logCompare_resetZoom,
                               icon: const Icon(Icons.refresh),
                               onPressed: _resetZoom,
                             ),
                             if (isZoomed) ...[
                               const SizedBox(height: 6),
                               IconButton(
-                                tooltip: 'Pan up',
+                                tooltip: SL.of(context).logCompare_panUp,
                                 icon: const Icon(Icons.arrow_upward),
                                 onPressed: () => _pan(
                                   fracX: 0,
@@ -1551,7 +1552,7 @@ class _LogCompareChartWithTogglesState
                                 ),
                               ),
                               IconButton(
-                                tooltip: 'Pan left',
+                                tooltip: SL.of(context).logCompare_panLeft,
                                 icon: const Icon(Icons.arrow_back),
                                 onPressed: () => _pan(
                                   fracX: -0.2,
@@ -1563,7 +1564,7 @@ class _LogCompareChartWithTogglesState
                                 ),
                               ),
                               IconButton(
-                                tooltip: 'Pan right',
+                                tooltip: SL.of(context).logCompare_panRight,
                                 icon: const Icon(Icons.arrow_forward),
                                 onPressed: () => _pan(
                                   fracX: 0.2,
@@ -1575,7 +1576,7 @@ class _LogCompareChartWithTogglesState
                                 ),
                               ),
                               IconButton(
-                                tooltip: 'Pan down',
+                                tooltip: SL.of(context).logCompare_panDown,
                                 icon: const Icon(Icons.arrow_downward),
                                 onPressed: () => _pan(
                                   fracX: 0,
