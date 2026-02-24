@@ -981,6 +981,8 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
       });
     }
     // add parent log id to logs
+    tableColumns =
+        getTableColumns(TableName(TABLE_GPSLOGS, schemaSupported: false));
     bool hasParentLogId = false;
     tableColumns.forEach((list) {
       String name = list[0];
