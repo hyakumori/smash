@@ -682,6 +682,7 @@ PreparedMulti prepareMultiSeries(
   List<List<LogDataPoint>> segments, {
   required CompareXAxis xAxis,
   required CompareYAxis yAxis,
+  SpeedSeriesMode speedMode = SpeedSeriesMode.smoothed,
   bool computeSpeedIfMissing = true,
   bool sortByTsWithinSegment = true,
   int maxPointsPerSegment = 2500,
@@ -736,6 +737,7 @@ PreparedMulti prepareMultiSeries(
     double cumDist = 0.0;
 
     LogDataPoint? prevKept;
+    double? emaY;
 
     for (int i = startIdx; i < seg.length; i += stride) {
       final p = seg[i];
@@ -770,7 +772,7 @@ PreparedMulti prepareMultiSeries(
           if ((y == null || !y.isFinite) && computeSpeedIfMissing) {
             if (prevKept != null && prevKept.ts != null && p.ts != null) {
               final dt = (p.ts! - prevKept.ts!) / 1000.0;
-              if (dt > 0) {
+              if (dt >= 1.0 && dt <= 60.0) {
                 final d = _haversineMeters(
                   _lat(prevKept),
                   _lon(prevKept),
@@ -778,7 +780,7 @@ PreparedMulti prepareMultiSeries(
                   _lon(p),
                 );
                 final sp = d / dt; // m/s
-                if (sp.isFinite) y = sp;
+                if (sp.isFinite && sp >= 0 && sp <= 20.0) y = sp;
               }
             }
           }
@@ -787,6 +789,12 @@ PreparedMulti prepareMultiSeries(
         case CompareYAxis.altitude:
           y = p.altim;
           break;
+      }
+
+      if (y != null && y.isFinite && speedMode == SpeedSeriesMode.smoothed) {
+        const alpha = 0.1;
+        emaY = emaY == null ? y : (alpha * y + (1 - alpha) * emaY);
+        y = emaY;
       }
 
       if (y == null || !y.isFinite) {
@@ -832,6 +840,8 @@ enum CompareXAxis { time, distance }
 
 enum CompareYAxis { speed, altitude }
 
+enum SpeedSeriesMode { raw, smoothed }
+
 /// Drop-in header: legend + toggles.
 /// Put this above the LineChart in your chart area.
 class LogCompareHeader extends StatelessWidget {
@@ -843,6 +853,8 @@ class LogCompareHeader extends StatelessWidget {
     required this.yAxis,
     required this.onXAxisChanged,
     required this.onYAxisChanged,
+    required this.speedMode,
+    required this.onSpeedModeChanged,
     this.onToggleRedVisible,
     this.onToggleBlueVisible,
     this.redVisible = true,
@@ -854,9 +866,11 @@ class LogCompareHeader extends StatelessWidget {
 
   final CompareXAxis xAxis;
   final CompareYAxis yAxis;
+  final SpeedSeriesMode speedMode;
 
   final ValueChanged<CompareXAxis> onXAxisChanged;
   final ValueChanged<CompareYAxis> onYAxisChanged;
+  final ValueChanged<SpeedSeriesMode> onSpeedModeChanged;
 
   // Optional: allow hiding/showing series by tapping legend
   final VoidCallback? onToggleRedVisible;
@@ -932,6 +946,33 @@ class LogCompareHeader extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Text(sl.logCompare_speed),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Smoothing:', style: theme.textTheme.labelLarge),
+            const SizedBox(width: 8),
+            ToggleButtons(
+              isSelected: [
+                speedMode == SpeedSeriesMode.raw,
+                speedMode == SpeedSeriesMode.smoothed,
+              ],
+              onPressed: (idx) {
+                onSpeedModeChanged(
+                    idx == 0 ? SpeedSeriesMode.raw : SpeedSeriesMode.smoothed);
+              },
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('Raw'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text('Smoothed'),
                 ),
               ],
             ),
@@ -1054,6 +1095,7 @@ class _LogCompareChartWithTogglesState
     extends State<LogCompareChartWithToggles> {
   late CompareXAxis _xAxis = widget.initialXAxis;
   late CompareYAxis _yAxis = widget.initialYAxis;
+  SpeedSeriesMode _speedMode = SpeedSeriesMode.smoothed;
 
   bool _redVisible = true;
   bool _blueVisible = true;
@@ -1063,10 +1105,10 @@ class _LogCompareChartWithTogglesState
 
   @override
   Widget build(BuildContext context) {
-    final red =
-        prepareMultiSeries(widget.redSegments, xAxis: _xAxis, yAxis: _yAxis);
-    final blue =
-        prepareMultiSeries(widget.blueSegments, xAxis: _xAxis, yAxis: _yAxis);
+    final red = prepareMultiSeries(widget.redSegments,
+        xAxis: _xAxis, yAxis: _yAxis, speedMode: _speedMode);
+    final blue = prepareMultiSeries(widget.blueSegments,
+        xAxis: _xAxis, yAxis: _yAxis, speedMode: _speedMode);
 
     if ((red.segments.isEmpty || !_redVisible) &&
         (blue.segments.isEmpty || !_blueVisible)) {
@@ -1202,6 +1244,8 @@ class _LogCompareChartWithTogglesState
                 setState(() => _blueVisible = !_blueVisible),
             onXAxisChanged: (v) => setState(() => _xAxis = v),
             onYAxisChanged: (v) => setState(() => _yAxis = v),
+            speedMode: _speedMode,
+            onSpeedModeChanged: (v) => setState(() => _speedMode = v),
           ),
           const SizedBox(height: 8),
           SizedBox(
