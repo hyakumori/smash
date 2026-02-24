@@ -792,7 +792,7 @@ PreparedMulti prepareMultiSeries(
       }
 
       if (y != null && y.isFinite && speedMode == SpeedSeriesMode.smoothed) {
-        const alpha = 0.1;
+        final alpha = yAxis == CompareYAxis.speed ? 0.04 : 0.1;
         emaY = emaY == null ? y : (alpha * y + (1 - alpha) * emaY);
         y = emaY;
       }
