@@ -1096,12 +1096,125 @@ class _LogCompareChartWithTogglesState
   late CompareXAxis _xAxis = widget.initialXAxis;
   late CompareYAxis _yAxis = widget.initialYAxis;
   SpeedSeriesMode _speedMode = SpeedSeriesMode.smoothed;
+  double? _viewMinX;
+  double? _viewMaxX;
+  double? _viewMinY;
+  double? _viewMaxY;
 
   bool _redVisible = true;
   bool _blueVisible = true;
   double? _touchX;
   double? _touchRedY;
   double? _touchBlueY;
+
+  List<double> _clampRange({
+    required double min,
+    required double max,
+    required double dataMin,
+    required double dataMax,
+    required double minSpan,
+  }) {
+    final dataSpan = (dataMax - dataMin).abs();
+    if (!dataSpan.isFinite || dataSpan <= minSpan) {
+      return <double>[dataMin, dataMax];
+    }
+    var span = (max - min).abs();
+    if (!span.isFinite) span = dataSpan;
+    span = span.clamp(minSpan, dataSpan);
+    var center = (min + max) / 2.0;
+    final minCenter = dataMin + span / 2.0;
+    final maxCenter = dataMax - span / 2.0;
+    center = center.clamp(minCenter, maxCenter);
+    return <double>[center - span / 2.0, center + span / 2.0];
+  }
+
+  void _resetZoom() {
+    setState(() {
+      _viewMinX = null;
+      _viewMaxX = null;
+      _viewMinY = null;
+      _viewMaxY = null;
+    });
+  }
+
+  void _zoom({
+    required double factor,
+    required double dataMinX,
+    required double dataMaxX,
+    required double dataMinY,
+    required double dataMaxY,
+  }) {
+    final curMinX = _viewMinX ?? dataMinX;
+    final curMaxX = _viewMaxX ?? dataMaxX;
+    final curMinY = _viewMinY ?? dataMinY;
+    final curMaxY = _viewMaxY ?? dataMaxY;
+
+    final nextX = _clampRange(
+      min: (curMinX + curMaxX) / 2.0 - (curMaxX - curMinX) * factor / 2.0,
+      max: (curMinX + curMaxX) / 2.0 + (curMaxX - curMinX) * factor / 2.0,
+      dataMin: dataMinX,
+      dataMax: dataMaxX,
+      minSpan: math.max(1e-6, (dataMaxX - dataMinX).abs() * 0.02),
+    );
+    final nextY = _clampRange(
+      min: (curMinY + curMaxY) / 2.0 - (curMaxY - curMinY) * factor / 2.0,
+      max: (curMinY + curMaxY) / 2.0 + (curMaxY - curMinY) * factor / 2.0,
+      dataMin: dataMinY,
+      dataMax: dataMaxY,
+      minSpan: math.max(1e-6, (dataMaxY - dataMinY).abs() * 0.02),
+    );
+
+    setState(() {
+      _viewMinX = nextX[0];
+      _viewMaxX = nextX[1];
+      _viewMinY = nextY[0];
+      _viewMaxY = nextY[1];
+    });
+  }
+
+  void _pan({
+    required double fracX,
+    required double fracY,
+    required double dataMinX,
+    required double dataMaxX,
+    required double dataMinY,
+    required double dataMaxY,
+  }) {
+    final curMinX = _viewMinX ?? dataMinX;
+    final curMaxX = _viewMaxX ?? dataMaxX;
+    final curMinY = _viewMinY ?? dataMinY;
+    final curMaxY = _viewMaxY ?? dataMaxY;
+
+    final spanX = (curMaxX - curMinX).abs();
+    final spanY = (curMaxY - curMinY).abs();
+
+    final shiftedXMin = curMinX + spanX * fracX;
+    final shiftedXMax = curMaxX + spanX * fracX;
+    final shiftedYMin = curMinY + spanY * fracY;
+    final shiftedYMax = curMaxY + spanY * fracY;
+
+    final nextX = _clampRange(
+      min: shiftedXMin,
+      max: shiftedXMax,
+      dataMin: dataMinX,
+      dataMax: dataMaxX,
+      minSpan: math.max(1e-6, (dataMaxX - dataMinX).abs() * 0.02),
+    );
+    final nextY = _clampRange(
+      min: shiftedYMin,
+      max: shiftedYMax,
+      dataMin: dataMinY,
+      dataMax: dataMaxY,
+      minSpan: math.max(1e-6, (dataMaxY - dataMinY).abs() * 0.02),
+    );
+
+    setState(() {
+      _viewMinX = nextX[0];
+      _viewMaxX = nextX[1];
+      _viewMinY = nextY[0];
+      _viewMaxY = nextY[1];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1118,18 +1231,37 @@ class _LogCompareChartWithTogglesState
     final hasRed = _redVisible && red.segments.isNotEmpty;
     final hasBlue = _blueVisible && blue.segments.isNotEmpty;
 
-    final minX = hasRed && hasBlue
+    final dataMinX = hasRed && hasBlue
         ? math.min(red.minX, blue.minX)
         : (hasRed ? red.minX : blue.minX);
-    final maxX = hasRed && hasBlue
+    final dataMaxX = hasRed && hasBlue
         ? math.max(red.maxX, blue.maxX)
         : (hasRed ? red.maxX : blue.maxX);
-    final minY = hasRed && hasBlue
+    final dataMinY = hasRed && hasBlue
         ? math.min(red.minY, blue.minY)
         : (hasRed ? red.minY : blue.minY);
-    final maxY = hasRed && hasBlue
+    final dataMaxY = hasRed && hasBlue
         ? math.max(red.maxY, blue.maxY)
         : (hasRed ? red.maxY : blue.maxY);
+
+    final xRange = _clampRange(
+      min: _viewMinX ?? dataMinX,
+      max: _viewMaxX ?? dataMaxX,
+      dataMin: dataMinX,
+      dataMax: dataMaxX,
+      minSpan: math.max(1e-6, (dataMaxX - dataMinX).abs() * 0.02),
+    );
+    final yRange = _clampRange(
+      min: _viewMinY ?? dataMinY,
+      max: _viewMaxY ?? dataMaxY,
+      dataMin: dataMinY,
+      dataMax: dataMaxY,
+      minSpan: math.max(1e-6, (dataMaxY - dataMinY).abs() * 0.02),
+    );
+    final minX = xRange[0];
+    final maxX = xRange[1];
+    final minY = yRange[0];
+    final maxY = yRange[1];
 
     final bars = <LineChartBarData>[];
 
@@ -1242,12 +1374,101 @@ class _LogCompareChartWithTogglesState
                 setState(() => _redVisible = !_redVisible),
             onToggleBlueVisible: () =>
                 setState(() => _blueVisible = !_blueVisible),
-            onXAxisChanged: (v) => setState(() => _xAxis = v),
-            onYAxisChanged: (v) => setState(() => _yAxis = v),
+            onXAxisChanged: (v) => setState(() {
+              _xAxis = v;
+              _viewMinX = null;
+              _viewMaxX = null;
+            }),
+            onYAxisChanged: (v) => setState(() {
+              _yAxis = v;
+              _viewMinY = null;
+              _viewMaxY = null;
+            }),
             speedMode: _speedMode,
             onSpeedModeChanged: (v) => setState(() => _speedMode = v),
           ),
           const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                tooltip: 'Zoom in',
+                icon: const Icon(Icons.zoom_in),
+                onPressed: () => _zoom(
+                  factor: 0.7,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Zoom out',
+                icon: const Icon(Icons.zoom_out),
+                onPressed: () => _zoom(
+                  factor: 1.4,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Reset zoom',
+                icon: const Icon(Icons.refresh),
+                onPressed: _resetZoom,
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Pan left',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => _pan(
+                  fracX: -0.2,
+                  fracY: 0,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Pan right',
+                icon: const Icon(Icons.arrow_forward),
+                onPressed: () => _pan(
+                  fracX: 0.2,
+                  fracY: 0,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Pan up',
+                icon: const Icon(Icons.arrow_upward),
+                onPressed: () => _pan(
+                  fracX: 0,
+                  fracY: 0.2,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+              IconButton(
+                tooltip: 'Pan down',
+                icon: const Icon(Icons.arrow_downward),
+                onPressed: () => _pan(
+                  fracX: 0,
+                  fracY: -0.2,
+                  dataMinX: dataMinX,
+                  dataMaxX: dataMaxX,
+                  dataMinY: dataMinY,
+                  dataMaxY: dataMaxY,
+                ),
+              ),
+            ],
+          ),
           SizedBox(
             height: 22,
             child: Align(
@@ -1298,6 +1519,7 @@ class _LogCompareChartWithTogglesState
                 maxX: maxX,
                 minY: minY,
                 maxY: maxY,
+                clipData: const FlClipData.all(),
                 gridData: const FlGridData(show: true),
                 borderData: FlBorderData(
                   show: true,
