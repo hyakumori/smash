@@ -417,7 +417,7 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
       where = " where $LOGS_COLUMN_ISDIRTY=1";
     }
     String logsQuery = '''
-        select $LOGS_COLUMN_ID, $LOGS_COLUMN_STARTTS, $LOGS_COLUMN_ENDTS, $LOGS_COLUMN_TEXT, $LOGS_COLUMN_ISDIRTY, $LOGS_COLUMN_LENGTHM
+        select $LOGS_COLUMN_ID, $LOGS_COLUMN_STARTTS, $LOGS_COLUMN_ENDTS, $LOGS_COLUMN_TEXT, $LOGS_COLUMN_ISDIRTY, $LOGS_COLUMN_LENGTHM, $LOGS_COLUMN_PARENTLOGID
         from $TABLE_GPSLOGS
         $where
     ''';
@@ -431,7 +431,8 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
         ..endTime = map.get(LOGS_COLUMN_ENDTS)
         ..text = map.get(LOGS_COLUMN_TEXT)
         ..isDirty = map.get(LOGS_COLUMN_ISDIRTY)
-        ..lengthm = map.get(LOGS_COLUMN_LENGTHM);
+        ..lengthm = map.get(LOGS_COLUMN_LENGTHM)
+        ..parentLogId = map.get(LOGS_COLUMN_PARENTLOGID);
       logs.add(log);
     });
     return logs;
@@ -440,7 +441,7 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
   @override
   Log? getLogById(int logId) {
     String logsQuery = '''
-        select $LOGS_COLUMN_ID, $LOGS_COLUMN_STARTTS, $LOGS_COLUMN_ENDTS, $LOGS_COLUMN_TEXT, $LOGS_COLUMN_ISDIRTY, $LOGS_COLUMN_LENGTHM
+        select $LOGS_COLUMN_ID, $LOGS_COLUMN_STARTTS, $LOGS_COLUMN_ENDTS, $LOGS_COLUMN_TEXT, $LOGS_COLUMN_ISDIRTY, $LOGS_COLUMN_LENGTHM, $LOGS_COLUMN_PARENTLOGID
         from $TABLE_GPSLOGS
         where $LOGS_COLUMN_ID=$logId
     ''';
@@ -454,7 +455,8 @@ class GeopaparazziProjectDb extends SqliteDb implements ProjectDb {
         ..endTime = map.get(LOGS_COLUMN_ENDTS)
         ..text = map.get(LOGS_COLUMN_TEXT)
         ..isDirty = map.get(LOGS_COLUMN_ISDIRTY)
-        ..lengthm = map.get(LOGS_COLUMN_LENGTHM);
+        ..lengthm = map.get(LOGS_COLUMN_LENGTHM)
+        ..parentLogId = map.get(LOGS_COLUMN_PARENTLOGID);
       return log;
     }
     return null;

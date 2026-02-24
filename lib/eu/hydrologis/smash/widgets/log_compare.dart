@@ -74,7 +74,8 @@ class _LogCompareState extends State<LogCompare> {
   }
 
   Future<List<Log>> _loadLogs(ProjectDb db) async {
-    return await db.getLogs();
+    final logs = await db.getLogs();
+    return logs.where((log) => log.parentLogId == null).toList();
   }
 
   Future<void> _enterLogsMode(_PaneState pane, String projectName) async {
