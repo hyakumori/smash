@@ -497,6 +497,12 @@ class _ChartArea extends StatelessWidget {
   final String? projectB;
   final Map<String, ProjectDb> projectDbsMap;
 
+  String _logLabel(Log log) {
+    final text = log.text?.trim();
+    if (text == null || text.isEmpty) return 'Log ${log.id}';
+    return text;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (logA == null && logB == null) {
@@ -527,9 +533,38 @@ class _ChartArea extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Chart (placeholder)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 6,
+                children: [
+                  if (logA != null)
+                    Text(
+                      _logLabel(logA!),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.red,
+                      ),
+                    ),
+                  if (logA != null && logB != null)
+                    const Text(
+                      'vs.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  if (logB != null)
+                    Text(
+                      _logLabel(logB!),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blue,
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -697,10 +732,6 @@ PreparedMulti prepareMultiSeries(
         case CompareYAxis.altitude:
           y = p.altim;
           break;
-
-        case CompareYAxis.accuracy:
-          y = p.filtered_accuracy ?? p.accuracy;
-          break;
       }
 
       if (y == null || !y.isFinite) {
@@ -740,7 +771,7 @@ PreparedMulti prepareMultiSeries(
 
 enum CompareXAxis { time, distance }
 
-enum CompareYAxis { speed, altitude, accuracy }
+enum CompareYAxis { speed, altitude }
 
 /// Drop-in header: legend + toggles.
 /// Put this above the LineChart in your chart area.
@@ -828,17 +859,9 @@ class LogCompareHeader extends StatelessWidget {
               isSelected: [
                 yAxis == CompareYAxis.speed,
                 yAxis == CompareYAxis.altitude,
-                yAxis == CompareYAxis.accuracy,
               ],
               onPressed: (idx) {
-                CompareYAxis v;
-                if (idx == 0) {
-                  v = CompareYAxis.speed;
-                } else if (idx == 1) {
-                  v = CompareYAxis.altitude;
-                } else {
-                  v = CompareYAxis.accuracy;
-                }
+                final v = idx == 0 ? CompareYAxis.speed : CompareYAxis.altitude;
                 onYAxisChanged(v);
               },
               children: const [
@@ -849,10 +872,6 @@ class LogCompareHeader extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Text('Alt'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Acc'),
                 ),
               ],
             ),
@@ -1042,8 +1061,7 @@ class _LogCompareChartWithTogglesState
         _xAxis == CompareXAxis.time ? 'Time (s)' : 'Distance (m)';
     String yTitle() {
       if (_yAxis == CompareYAxis.speed) return 'Speed (m/s)';
-      if (_yAxis == CompareYAxis.altitude) return 'Altitude (m)';
-      return 'Accuracy (m)';
+      return 'Altitude (m)';
     }
 
     final redCount = _redVisible ? red.segments.length : 0;
