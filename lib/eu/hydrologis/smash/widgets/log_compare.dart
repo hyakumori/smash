@@ -883,21 +883,21 @@ class LogCompareHeader extends StatelessWidget {
             const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [
-                xAxis == CompareXAxis.time,
                 xAxis == CompareXAxis.distance,
+                xAxis == CompareXAxis.time,
               ],
               onPressed: (idx) {
                 onXAxisChanged(
-                    idx == 0 ? CompareXAxis.time : CompareXAxis.distance);
+                    idx == 0 ? CompareXAxis.distance : CompareXAxis.time);
               },
               children: const [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Time'),
+                  child: Text('Distance'),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Distance'),
+                  child: Text('Time'),
                 ),
               ],
             ),
@@ -910,21 +910,21 @@ class LogCompareHeader extends StatelessWidget {
             const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [
-                yAxis == CompareYAxis.speed,
                 yAxis == CompareYAxis.altitude,
+                yAxis == CompareYAxis.speed,
               ],
               onPressed: (idx) {
-                final v = idx == 0 ? CompareYAxis.speed : CompareYAxis.altitude;
+                final v = idx == 0 ? CompareYAxis.altitude : CompareYAxis.speed;
                 onYAxisChanged(v);
               },
               children: const [
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Speed'),
+                  child: Text('Altitude'),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text('Altitude'),
+                  child: Text('Speed'),
                 ),
               ],
             ),
@@ -1050,6 +1050,9 @@ class _LogCompareChartWithTogglesState
 
   bool _redVisible = true;
   bool _blueVisible = true;
+  double? _touchX;
+  double? _touchRedY;
+  double? _touchBlueY;
 
   @override
   Widget build(BuildContext context) {
@@ -1111,15 +1114,31 @@ class _LogCompareChartWithTogglesState
     }
 
     String xTitle() =>
-        _xAxis == CompareXAxis.time ? 'Time (min)' : 'Distance (m)';
+        _xAxis == CompareXAxis.time ? 'Time [hh:mm]' : 'Distance [m]';
+    String xReadoutLabel() => _xAxis == CompareXAxis.time ? 'Time' : 'Distance';
     String yTitle() {
-      if (_yAxis == CompareYAxis.speed) return 'Speed (m/s)';
-      return 'Altitude (m)';
+      if (_yAxis == CompareYAxis.speed) return 'Speed [m/s]';
+      return 'Altitude [m]';
     }
 
-    final redCount = _redVisible ? red.segments.length : 0;
+    String yReadoutLabel() {
+      if (_yAxis == CompareYAxis.speed) return 'Speed';
+      return 'Altitude';
+    }
 
     String toIntTick(double v) => v.round().toString();
+
+    String timeLabelFromMinutes(double v) {
+      final total = v.round();
+      final sign = total < 0 ? '-' : '';
+      final absTotal = total.abs();
+      final hours = absTotal ~/ 60;
+      final minutes = absTotal % 60;
+      return '$sign${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+    }
+
+    String xValueLabel(double v) =>
+        _xAxis == CompareXAxis.time ? timeLabelFromMinutes(v) : _fmt(v);
 
     double niceIntInterval(double min, double max) {
       final span = (max - min).abs();
@@ -1138,6 +1157,21 @@ class _LogCompareChartWithTogglesState
                   ? 5.0
                   : 10.0;
       return math.max(1, (step * pow10).round()).toDouble();
+    }
+
+    FlSpot? nearestSpotAtX(List<List<FlSpot>> segments, double x) {
+      FlSpot? best;
+      var bestDx = double.infinity;
+      for (final seg in segments) {
+        for (final p in seg) {
+          final dx = (p.x - x).abs();
+          if (dx < bestDx) {
+            bestDx = dx;
+            best = p;
+          }
+        }
+      }
+      return best;
     }
 
     return Padding(
@@ -1159,6 +1193,49 @@ class _LogCompareChartWithTogglesState
             onYAxisChanged: (v) => setState(() => _yAxis = v),
           ),
           const SizedBox(height: 8),
+          SizedBox(
+            height: 22,
+            child: Align(
+              alignment: Alignment.center,
+              child: _touchX == null
+                  ? const SizedBox.shrink()
+                  : Builder(
+                      builder: (context) {
+                        final baseStyle =
+                            (Theme.of(context).textTheme.bodySmall ??
+                                    const TextStyle(fontSize: 12))
+                                .copyWith(fontWeight: FontWeight.w700);
+                        return Text.rich(
+                          TextSpan(
+                            style: baseStyle,
+                            children: [
+                              TextSpan(
+                                  text:
+                                      '${xReadoutLabel()}: ${xValueLabel(_touchX!)}'),
+                              TextSpan(text: '   ${yReadoutLabel()}: '),
+                              TextSpan(
+                                text: _touchRedY == null
+                                    ? '-'
+                                    : _fmt(_touchRedY!),
+                                style: baseStyle.copyWith(color: Colors.red),
+                              ),
+                              const TextSpan(text: ' / '),
+                              TextSpan(
+                                text: _touchBlueY == null
+                                    ? '-'
+                                    : _fmt(_touchBlueY!),
+                                style: baseStyle.copyWith(color: Colors.blue),
+                              ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
+                    ),
+            ),
+          ),
+          const SizedBox(height: 6),
           Expanded(
             child: LineChart(
               LineChartData(
@@ -1170,6 +1247,18 @@ class _LogCompareChartWithTogglesState
                 borderData: FlBorderData(
                   show: true,
                   border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                extraLinesData: ExtraLinesData(
+                  verticalLines: _touchX == null
+                      ? const []
+                      : [
+                          VerticalLine(
+                            x: _touchX!,
+                            color: Theme.of(context).colorScheme.outline,
+                            strokeWidth: 1.5,
+                            dashArray: [4, 4],
+                          ),
+                        ],
                 ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(
@@ -1192,7 +1281,9 @@ class _LogCompareChartWithTogglesState
                         meta: meta,
                         fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
                         child: Text(
-                          toIntTick(v),
+                          _xAxis == CompareXAxis.time
+                              ? timeLabelFromMinutes(v)
+                              : toIntTick(v),
                           maxLines: 1,
                           softWrap: false,
                           overflow: TextOverflow.clip,
@@ -1227,20 +1318,51 @@ class _LogCompareChartWithTogglesState
                 ),
                 lineTouchData: LineTouchData(
                   enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    tooltipBorderRadius: BorderRadius.circular(8),
-                    getTooltipItems: (items) {
-                      return items.map((item) {
-                        // Determine whether tooltip belongs to RED/BLUE using segment split
-                        final isRed = item.barIndex < redCount;
-                        final name = isRed ? widget.redLabel : widget.blueLabel;
-                        return LineTooltipItem(
-                          '$name\nx=${_fmt(item.x)}\ny=${_fmt(item.y)}',
-                          const TextStyle(),
-                        );
-                      }).toList();
-                    },
-                  ),
+                  handleBuiltInTouches: false,
+                  touchCallback: (event, response) {
+                    final touched = response?.lineBarSpots;
+                    if (touched == null || touched.isEmpty) {
+                      if (_touchX != null ||
+                          _touchRedY != null ||
+                          _touchBlueY != null) {
+                        setState(() {
+                          _touchX = null;
+                          _touchRedY = null;
+                          _touchBlueY = null;
+                        });
+                      }
+                      return;
+                    }
+
+                    final spot = touched.first;
+                    final touchX = spot.x;
+                    double? redY;
+                    double? blueY;
+
+                    if (_redVisible && red.segments.isNotEmpty) {
+                      final redSpot = nearestSpotAtX(red.segments, touchX);
+                      if (redSpot != null) {
+                        redY = redSpot.y;
+                      }
+                    }
+
+                    if (_blueVisible && blue.segments.isNotEmpty) {
+                      final blueSpot = nearestSpotAtX(blue.segments, touchX);
+                      if (blueSpot != null) {
+                        blueY = blueSpot.y;
+                      }
+                    }
+
+                    if (touchX != _touchX ||
+                        redY != _touchRedY ||
+                        blueY != _touchBlueY) {
+                      setState(() {
+                        _touchX = touchX;
+                        _touchRedY = redY;
+                        _touchBlueY = blueY;
+                      });
+                    }
+                  },
                 ),
                 lineBarsData: bars,
               ),
