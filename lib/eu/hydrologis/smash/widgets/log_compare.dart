@@ -889,14 +889,6 @@ class LogCompareHeader extends StatelessWidget {
       runSpacing: 8,
       spacing: 12,
       children: [
-        _LegendRow(
-          redLabel: redLabel,
-          blueLabel: blueLabel,
-          redVisible: redVisible,
-          blueVisible: blueVisible,
-          onToggleRedVisible: onToggleRedVisible,
-          onToggleBlueVisible: onToggleBlueVisible,
-        ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -951,11 +943,10 @@ class LogCompareHeader extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(width: 8),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Smoothing:', style: theme.textTheme.labelLarge),
-            const SizedBox(width: 8),
             ToggleButtons(
               isSelected: [
                 speedMode == SpeedSeriesMode.raw,
@@ -982,89 +973,6 @@ class LogCompareHeader extends StatelessWidget {
     );
   }
 }
-
-class _LegendRow extends StatelessWidget {
-  const _LegendRow({
-    required this.redLabel,
-    required this.blueLabel,
-    required this.redVisible,
-    required this.blueVisible,
-    this.onToggleRedVisible,
-    this.onToggleBlueVisible,
-  });
-
-  final String redLabel;
-  final String blueLabel;
-
-  final bool redVisible;
-  final bool blueVisible;
-
-  final VoidCallback? onToggleRedVisible;
-  final VoidCallback? onToggleBlueVisible;
-
-  @override
-  Widget build(BuildContext context) {
-    Widget item({
-      required Color color,
-      required String label,
-      required bool visible,
-      required VoidCallback? onTap,
-    }) {
-      final textStyle = TextStyle(
-        fontWeight: FontWeight.w600,
-        decoration: visible ? null : TextDecoration.lineThrough,
-        color: visible ? null : Theme.of(context).disabledColor,
-      );
-
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: visible ? color : Theme.of(context).disabledColor,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(label, style: textStyle),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        item(
-          color: Colors.red,
-          label: redLabel,
-          visible: redVisible,
-          onTap: onToggleRedVisible,
-        ),
-        const SizedBox(width: 12),
-        item(
-          color: Colors.blue,
-          label: blueLabel,
-          visible: blueVisible,
-          onTap: onToggleBlueVisible,
-        ),
-      ],
-    );
-  }
-}
-
-/// ---------------------------------------------------------------------------
-/// Example: Updated chart widget that uses the header + toggles.
-/// You can merge this into your existing _ChartArea.
-/// ---------------------------------------------------------------------------
 
 class LogCompareChartWithToggles extends StatefulWidget {
   const LogCompareChartWithToggles({
@@ -1262,6 +1170,12 @@ class _LogCompareChartWithTogglesState
     final maxX = xRange[1];
     final minY = yRange[0];
     final maxY = yRange[1];
+    final dataSpanX = (dataMaxX - dataMinX).abs();
+    final dataSpanY = (dataMaxY - dataMinY).abs();
+    final viewSpanX = (maxX - minX).abs();
+    final viewSpanY = (maxY - minY).abs();
+    final isZoomed = (dataSpanX > 1e-9 && viewSpanX < dataSpanX * 0.999) ||
+        (dataSpanY > 1e-9 && viewSpanY < dataSpanY * 0.999);
 
     final bars = <LineChartBarData>[];
 
@@ -1388,87 +1302,6 @@ class _LogCompareChartWithTogglesState
             onSpeedModeChanged: (v) => setState(() => _speedMode = v),
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                tooltip: 'Zoom in',
-                icon: const Icon(Icons.zoom_in),
-                onPressed: () => _zoom(
-                  factor: 0.7,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Zoom out',
-                icon: const Icon(Icons.zoom_out),
-                onPressed: () => _zoom(
-                  factor: 1.4,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Reset zoom',
-                icon: const Icon(Icons.refresh),
-                onPressed: _resetZoom,
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                tooltip: 'Pan left',
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => _pan(
-                  fracX: -0.2,
-                  fracY: 0,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Pan right',
-                icon: const Icon(Icons.arrow_forward),
-                onPressed: () => _pan(
-                  fracX: 0.2,
-                  fracY: 0,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Pan up',
-                icon: const Icon(Icons.arrow_upward),
-                onPressed: () => _pan(
-                  fracX: 0,
-                  fracY: 0.2,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-              IconButton(
-                tooltip: 'Pan down',
-                icon: const Icon(Icons.arrow_downward),
-                onPressed: () => _pan(
-                  fracX: 0,
-                  fracY: -0.2,
-                  dataMinX: dataMinX,
-                  dataMaxX: dataMaxX,
-                  dataMinY: dataMinY,
-                  dataMaxY: dataMaxY,
-                ),
-              ),
-            ],
-          ),
           SizedBox(
             height: 22,
             child: Align(
@@ -1513,137 +1346,254 @@ class _LogCompareChartWithTogglesState
           ),
           const SizedBox(height: 6),
           Expanded(
-            child: LineChart(
-              LineChartData(
-                minX: minX,
-                maxX: maxX,
-                minY: minY,
-                maxY: maxY,
-                clipData: const FlClipData.all(),
-                gridData: const FlGridData(show: true),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                ),
-                extraLinesData: ExtraLinesData(
-                  verticalLines: _touchX == null
-                      ? const []
-                      : [
-                          VerticalLine(
-                            x: _touchX!,
-                            color: Theme.of(context).colorScheme.outline,
-                            strokeWidth: 1.5,
-                            dashArray: [4, 4],
+            child: Stack(
+              children: [
+                LineChart(
+                  LineChartData(
+                    minX: minX,
+                    maxX: maxX,
+                    minY: minY,
+                    maxY: maxY,
+                    clipData: const FlClipData.all(),
+                    gridData: const FlGridData(show: true),
+                    borderData: FlBorderData(
+                      show: true,
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                    ),
+                    extraLinesData: ExtraLinesData(
+                      verticalLines: _touchX == null
+                          ? const []
+                          : [
+                              VerticalLine(
+                                x: _touchX!,
+                                color: Theme.of(context).colorScheme.outline,
+                                strokeWidth: 1.5,
+                                dashArray: [4, 4],
+                              ),
+                            ],
+                    ),
+                    titlesData: FlTitlesData(
+                      topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false)),
+                      bottomTitles: AxisTitles(
+                        axisNameSize: 44,
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(xTitle()),
+                        ),
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 32,
+                          interval: niceIntInterval(minX, maxX),
+                          minIncluded: false,
+                          maxIncluded: false,
+                          getTitlesWidget: (v, meta) => SideTitleWidget(
+                            meta: meta,
+                            fitInside:
+                                SideTitleFitInsideData.fromTitleMeta(meta),
+                            child: Text(
+                              _xAxis == CompareXAxis.time
+                                  ? timeLabelFromMinutes(v)
+                                  : toIntTick(v),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.clip,
+                            ),
                           ),
-                        ],
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: AxisTitles(
-                    axisNameSize: 44,
-                    axisNameWidget: Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(xTitle()),
+                        ),
+                      ),
+                      leftTitles: AxisTitles(
+                        axisNameSize: 32,
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Text(yTitle()),
+                        ),
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 58,
+                          interval: niceIntInterval(minY, maxY),
+                          minIncluded: false,
+                          maxIncluded: false,
+                          getTitlesWidget: (v, meta) => SideTitleWidget(
+                            meta: meta,
+                            fitInside:
+                                SideTitleFitInsideData.fromTitleMeta(meta),
+                            child: Text(
+                              toIntTick(v),
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.clip,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 32,
-                      interval: niceIntInterval(minX, maxX),
-                      minIncluded: false,
-                      maxIncluded: false,
-                      getTitlesWidget: (v, meta) => SideTitleWidget(
-                        meta: meta,
-                        fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
-                        child: Text(
-                          _xAxis == CompareXAxis.time
-                              ? timeLabelFromMinutes(v)
-                              : toIntTick(v),
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.clip,
+                    lineTouchData: LineTouchData(
+                      enabled: true,
+                      handleBuiltInTouches: false,
+                      touchCallback: (event, response) {
+                        final touched = response?.lineBarSpots;
+                        if (touched == null || touched.isEmpty) {
+                          if (_touchX != null ||
+                              _touchRedY != null ||
+                              _touchBlueY != null) {
+                            setState(() {
+                              _touchX = null;
+                              _touchRedY = null;
+                              _touchBlueY = null;
+                            });
+                          }
+                          return;
+                        }
+
+                        final spot = touched.first;
+                        final touchX = spot.x;
+                        double? redY;
+                        double? blueY;
+
+                        if (_redVisible && red.segments.isNotEmpty) {
+                          final redSpot = nearestSpotAtX(red.segments, touchX);
+                          if (redSpot != null) {
+                            redY = redSpot.y;
+                          }
+                        }
+
+                        if (_blueVisible && blue.segments.isNotEmpty) {
+                          final blueSpot =
+                              nearestSpotAtX(blue.segments, touchX);
+                          if (blueSpot != null) {
+                            blueY = blueSpot.y;
+                          }
+                        }
+
+                        if (touchX != _touchX ||
+                            redY != _touchRedY ||
+                            blueY != _touchBlueY) {
+                          setState(() {
+                            _touchX = touchX;
+                            _touchRedY = redY;
+                            _touchBlueY = blueY;
+                          });
+                        }
+                      },
+                    ),
+                    lineBarsData: bars,
+                  ),
+                  duration: const Duration(milliseconds: 180),
+                ),
+                Positioned(
+                  right: 6,
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .scaffoldBackgroundColor
+                            .withValues(alpha: 0.85),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButtonTheme(
+                        data: IconButtonThemeData(
+                          style: IconButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(34, 34),
+                            iconSize: 22,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              tooltip: 'Zoom in',
+                              icon: const Icon(Icons.zoom_in),
+                              onPressed: () => _zoom(
+                                factor: 0.7,
+                                dataMinX: dataMinX,
+                                dataMaxX: dataMaxX,
+                                dataMinY: dataMinY,
+                                dataMaxY: dataMaxY,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Zoom out',
+                              icon: const Icon(Icons.zoom_out),
+                              onPressed: () => _zoom(
+                                factor: 1.4,
+                                dataMinX: dataMinX,
+                                dataMaxX: dataMaxX,
+                                dataMinY: dataMinY,
+                                dataMaxY: dataMaxY,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Reset zoom',
+                              icon: const Icon(Icons.refresh),
+                              onPressed: _resetZoom,
+                            ),
+                            if (isZoomed) ...[
+                              const SizedBox(height: 6),
+                              IconButton(
+                                tooltip: 'Pan up',
+                                icon: const Icon(Icons.arrow_upward),
+                                onPressed: () => _pan(
+                                  fracX: 0,
+                                  fracY: 0.2,
+                                  dataMinX: dataMinX,
+                                  dataMaxX: dataMaxX,
+                                  dataMinY: dataMinY,
+                                  dataMaxY: dataMaxY,
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Pan left',
+                                icon: const Icon(Icons.arrow_back),
+                                onPressed: () => _pan(
+                                  fracX: -0.2,
+                                  fracY: 0,
+                                  dataMinX: dataMinX,
+                                  dataMaxX: dataMaxX,
+                                  dataMinY: dataMinY,
+                                  dataMaxY: dataMaxY,
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Pan right',
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: () => _pan(
+                                  fracX: 0.2,
+                                  fracY: 0,
+                                  dataMinX: dataMinX,
+                                  dataMaxX: dataMaxX,
+                                  dataMinY: dataMinY,
+                                  dataMaxY: dataMaxY,
+                                ),
+                              ),
+                              IconButton(
+                                tooltip: 'Pan down',
+                                icon: const Icon(Icons.arrow_downward),
+                                onPressed: () => _pan(
+                                  fracX: 0,
+                                  fracY: -0.2,
+                                  dataMinX: dataMinX,
+                                  dataMaxX: dataMaxX,
+                                  dataMinY: dataMinY,
+                                  dataMaxY: dataMaxY,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
                   ),
-                  leftTitles: AxisTitles(
-                    axisNameSize: 32,
-                    axisNameWidget: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text(yTitle()),
-                    ),
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 58,
-                      interval: niceIntInterval(minY, maxY),
-                      minIncluded: false,
-                      maxIncluded: false,
-                      getTitlesWidget: (v, meta) => SideTitleWidget(
-                        meta: meta,
-                        fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
-                        child: Text(
-                          toIntTick(v),
-                          maxLines: 1,
-                          softWrap: false,
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  handleBuiltInTouches: false,
-                  touchCallback: (event, response) {
-                    final touched = response?.lineBarSpots;
-                    if (touched == null || touched.isEmpty) {
-                      if (_touchX != null ||
-                          _touchRedY != null ||
-                          _touchBlueY != null) {
-                        setState(() {
-                          _touchX = null;
-                          _touchRedY = null;
-                          _touchBlueY = null;
-                        });
-                      }
-                      return;
-                    }
-
-                    final spot = touched.first;
-                    final touchX = spot.x;
-                    double? redY;
-                    double? blueY;
-
-                    if (_redVisible && red.segments.isNotEmpty) {
-                      final redSpot = nearestSpotAtX(red.segments, touchX);
-                      if (redSpot != null) {
-                        redY = redSpot.y;
-                      }
-                    }
-
-                    if (_blueVisible && blue.segments.isNotEmpty) {
-                      final blueSpot = nearestSpotAtX(blue.segments, touchX);
-                      if (blueSpot != null) {
-                        blueY = blueSpot.y;
-                      }
-                    }
-
-                    if (touchX != _touchX ||
-                        redY != _touchRedY ||
-                        blueY != _touchBlueY) {
-                      setState(() {
-                        _touchX = touchX;
-                        _touchRedY = redY;
-                        _touchBlueY = blueY;
-                      });
-                    }
-                  },
-                ),
-                lineBarsData: bars,
-              ),
-              duration: const Duration(milliseconds: 180),
+              ],
             ),
           ),
         ],
