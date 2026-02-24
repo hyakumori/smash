@@ -1048,6 +1048,27 @@ class _LogCompareChartWithTogglesState
 
     final redCount = _redVisible ? red.segments.length : 0;
 
+    String toIntTick(double v) => v.round().toString();
+
+    double niceIntInterval(double min, double max) {
+      final span = (max - min).abs();
+      if (span == 0 || !span.isFinite) return 1;
+      final raw = span / 6.0;
+      if (raw <= 1) return 1;
+
+      final pow10 =
+          math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
+      final norm = raw / pow10;
+      final step = norm < 1.5
+          ? 1.0
+          : (norm < 3.0)
+              ? 2.0
+              : (norm < 7.0)
+                  ? 5.0
+                  : 10.0;
+      return math.max(1, (step * pow10).round()).toDouble();
+    }
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -1085,27 +1106,51 @@ class _LogCompareChartWithTogglesState
                   rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false)),
                   bottomTitles: AxisTitles(
+                    axisNameSize: 44,
                     axisNameWidget: Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(xTitle()),
                     ),
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 28,
-                      interval: _niceInterval(minX, maxX),
-                      getTitlesWidget: (v, meta) => Text(_fmt(v)),
+                      reservedSize: 32,
+                      interval: niceIntInterval(minX, maxX),
+                      minIncluded: false,
+                      maxIncluded: false,
+                      getTitlesWidget: (v, meta) => SideTitleWidget(
+                        meta: meta,
+                        fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+                        child: Text(
+                          toIntTick(v),
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
                     ),
                   ),
                   leftTitles: AxisTitles(
+                    axisNameSize: 32,
                     axisNameWidget: Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Text(yTitle()),
                     ),
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 44,
-                      interval: _niceInterval(minY, maxY),
-                      getTitlesWidget: (v, meta) => Text(_fmt(v)),
+                      reservedSize: 58,
+                      interval: niceIntInterval(minY, maxY),
+                      minIncluded: false,
+                      maxIncluded: false,
+                      getTitlesWidget: (v, meta) => SideTitleWidget(
+                        meta: meta,
+                        fitInside: SideTitleFitInsideData.fromTitleMeta(meta),
+                        child: Text(
+                          toIntTick(v),
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
                     ),
                   ),
                 ),
