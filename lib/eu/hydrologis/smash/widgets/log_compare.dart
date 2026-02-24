@@ -1023,18 +1023,35 @@ class _LogCompareChartWithTogglesState
     required double dataMax,
     required double minSpan,
   }) {
-    final dataSpan = (dataMax - dataMin).abs();
+    final normalizedDataMin = math.min(dataMin, dataMax);
+    final normalizedDataMax = math.max(dataMin, dataMax);
+    final normalizedMin = math.min(min, max);
+    final normalizedMax = math.max(min, max);
+    final dataSpan = normalizedDataMax - normalizedDataMin;
     if (!dataSpan.isFinite || dataSpan <= minSpan) {
-      return <double>[dataMin, dataMax];
+      return <double>[normalizedDataMin, normalizedDataMax];
     }
-    var span = (max - min).abs();
+    var span = normalizedMax - normalizedMin;
     if (!span.isFinite) span = dataSpan;
-    span = span.clamp(minSpan, dataSpan);
-    var center = (min + max) / 2.0;
-    final minCenter = dataMin + span / 2.0;
-    final maxCenter = dataMax - span / 2.0;
-    center = center.clamp(minCenter, maxCenter);
-    return <double>[center - span / 2.0, center + span / 2.0];
+    final clampedMinSpan = minSpan.isFinite ? math.max(0.0, minSpan) : 0.0;
+    span = span.clamp(clampedMinSpan, dataSpan).toDouble();
+
+    final halfSpan = span / 2.0;
+    var center = (normalizedMin + normalizedMax) / 2.0;
+    if (!center.isFinite) {
+      center = (normalizedDataMin + normalizedDataMax) / 2.0;
+    }
+    final minCenter = normalizedDataMin + halfSpan;
+    final maxCenter = normalizedDataMax - halfSpan;
+    if (minCenter.isFinite &&
+        maxCenter.isFinite &&
+        minCenter <= maxCenter &&
+        center.isFinite) {
+      center = center.clamp(minCenter, maxCenter).toDouble();
+    } else {
+      center = (normalizedDataMin + normalizedDataMax) / 2.0;
+    }
+    return <double>[center - halfSpan, center + halfSpan];
   }
 
   void _resetZoom() {
@@ -1606,24 +1623,5 @@ class _LogCompareChartWithTogglesState
     if (v.abs() >= 1000) return v.toStringAsFixed(0);
     if (v.abs() >= 100) return v.toStringAsFixed(1);
     return v.toStringAsFixed(2);
-  }
-
-  static double _niceInterval(double min, double max) {
-    if (!min.isFinite || !max.isFinite) return 1;
-    final span = (max - min).abs();
-    if (span == 0) return 1;
-    final raw = span / 6.0;
-    final pow10 = math.pow(10, (math.log(raw) / math.ln10).floor()).toDouble();
-    final norm = raw / pow10;
-    double step;
-    if (norm < 1.5)
-      step = 1;
-    else if (norm < 3)
-      step = 2;
-    else if (norm < 7)
-      step = 5;
-    else
-      step = 10;
-    return step * pow10;
   }
 }
